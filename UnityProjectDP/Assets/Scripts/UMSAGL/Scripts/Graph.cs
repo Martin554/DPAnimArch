@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Msagl.Core.DataStructures;
 using UnityEngine.UI.Extensions;
+using Unity.Netcode;
 using System;
 
 public class Graph : MonoBehaviour
@@ -49,7 +50,6 @@ public class Graph : MonoBehaviour
 	public GameObject AddNode()
 	{
 		var go = GameObject.Instantiate(nodePrefab, units);
-
 		//Following step required otherwise Size will return wrong rect
 		Canvas.ForceUpdateCanvases();
 
@@ -60,6 +60,7 @@ public class Graph : MonoBehaviour
 		Node node = new Node(CurveFactory.CreateRectangle(w, h, new Point()));
 		node.UserData = go;
 		unode.GraphNode = node;
+
 		graph.Nodes.Add(node);
 
 		return go;
@@ -86,12 +87,13 @@ public class Graph : MonoBehaviour
 	{
 		var go = GameObject.Instantiate(prefab, units);
 		var uEdge = go.GetComponent<UEdge>();
-
+		
 		Edge edge = new Edge(from.GetComponent<UNode>().GraphNode, to.GetComponent<UNode>().GraphNode);
 		edge.LineWidth = ToGraphSpace(uEdge.Width);
 		edge.UserData = go;
 		uEdge.GraphEdge = edge;
 		graph.Edges.Add(edge);
+
 
 		return go;
 	}

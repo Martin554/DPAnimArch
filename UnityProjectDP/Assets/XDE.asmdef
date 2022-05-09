@@ -1,15 +1,19 @@
 {
     "name": "XDE",
+    "rootNamespace": "",
     "references": [
         "Unity.ProBuilder",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Unity.Netcode.Components",
+        "Unity.Netcode.Runtime"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

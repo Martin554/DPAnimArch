@@ -5,6 +5,7 @@ using UnityEngine;
 using TMPro;
 using System.Xml;
 using OALProgramControl;
+using Unity.Netcode;
 
 public class ClassDiagram : Singleton<ClassDiagram>
 {
@@ -95,6 +96,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
     {
         ResetDiagram();
         var go = GameObject.Instantiate(graphPrefab);
+        go.GetComponent<NetworkObject>().Spawn();
         graph = go.GetComponent<Graph>();
         return graph;
     }

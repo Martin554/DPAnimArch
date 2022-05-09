@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 using TMPro;
 
 public class ClassEditor : Singleton<ClassEditor>
@@ -32,6 +33,8 @@ public class ClassEditor : Singleton<ClassEditor>
         var methods = background.Find("Methods");
         RectTransform rc=node.GetComponent<RectTransform>();
         rc.position= new Vector3(100f,200f,1);
+
+        node.GetComponent<NetworkObject>().Spawn();
         id++;
 
     }
