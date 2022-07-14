@@ -76,6 +76,9 @@ public class ClassDiagram : Singleton<ClassDiagram>
         OALProgram.Instance.RelationshipSpace = new CDRelationshipPool();
         AnimationData.Instance.ClearData();
     }
+    /// <summary>
+    /// Todo: Martin
+    /// </summary>
     public void LoadDiagram()
     {
         CreateGraph();
@@ -96,7 +99,10 @@ public class ClassDiagram : Singleton<ClassDiagram>
     {
         ResetDiagram();
         var go = GameObject.Instantiate(graphPrefab);
-        go.GetComponent<NetworkObject>().Spawn();
+        if (NetworkManager.Singleton.IsServer)
+        {
+            go.GetComponent<NetworkObject>().Spawn();
+        }
         graph = go.GetComponent<Graph>();
         return graph;
     }
@@ -249,45 +255,55 @@ public class ClassDiagram : Singleton<ClassDiagram>
         for (int i = 0; i < DiagramClasses.Count; i++)
         {
             //Setting up
-            var node = graph.AddNode();
-            node.name = DiagramClasses[i].Name;
-            var background = node.transform.Find("Background");
-            var header = background.Find("Header");
-            var attributes = background.Find("Attributes");
-            var methods = background.Find("Methods");
+            if (NetworkManager.Singleton.IsServer)
+            {
+                var node = graph.AddNode();
+                node.name = DiagramClasses[i].Name;
+                var background = node.transform.Find("Background");
+                var header = background.Find("Header");
+                var attributes = background.Find("Attributes");
+                var methods = background.Find("Methods");
 
-            // Printing the values into diagram
-            header.GetComponent<TextMeshProUGUI>().text = DiagramClasses[i].Name;
+                // Printing the values into diagram
+                header.GetComponent<TextMeshProUGUI>().text = DiagramClasses[i].Name;
 
-            //Attributes
-            if (DiagramClasses[i].Attributes != null)
-                foreach (Attribute attr in DiagramClasses[i].Attributes)
+                //Attributes
+                if (DiagramClasses[i].Attributes != null)
                 {
-                    attributes.GetComponent<TextMeshProUGUI>().text += attr.Name + ": " + attr.Type + "\n";
+                    foreach (Attribute attr in DiagramClasses[i].Attributes)
+                    {
+                        attributes.GetComponent<TextMeshProUGUI>().text += attr.Name + ": " + attr.Type + "\n";
+                    }
                 }
 
-
-            //Methods
-            if (DiagramClasses[i].Methods != null)
-                foreach (Method method in DiagramClasses[i].Methods)
+                //Methods
+                if (DiagramClasses[i].Methods != null)
                 {
-                    string arguments = "(";
-                    if (method.arguments != null)
-                        for (int d = 0; d < method.arguments.Count; d++)
+                    foreach (Method method in DiagramClasses[i].Methods)
+                    {
+                        string arguments = "(";
+                        if (method.arguments != null)
                         {
-                            if (d < method.arguments.Count - 1)
-                                arguments += (method.arguments[d] + ", ");
-                            else arguments += (method.arguments[d]);
+                            for (int d = 0; d < method.arguments.Count; d++)
+                            {
+                                if (d < method.arguments.Count - 1)
+                                    arguments += (method.arguments[d] + ", ");
+                                else arguments += (method.arguments[d]);
+                            }
                         }
-                    arguments += ")";
-
-                    methods.GetComponent<TextMeshProUGUI>().text += method.Name + arguments + " :" + method.ReturnValue + "\n";
+                        arguments += ")";
+                        methods.GetComponent<TextMeshProUGUI>().text += method.Name + arguments + " :" + method.ReturnValue + "\n";
+                    }
                 }
-
-            //Add Class to Dictionary 
-            GameObjectClasses.Add(node.name, node);
-            //Debug.Log(node.name);
-
+                //Add Class to Dictionary 
+                GameObjectClasses.Add(node.name, node);
+                Networking.Spawner.Instance.SpawnClass(node);
+                //Debug.Log(node.name);
+            }
+            else
+            {
+                Networking.Spawner.Instance.SpawnClassServerRpc();
+            }
         }
 
         //Render Relations between classes

@@ -31,6 +31,10 @@ public class UNode : Unit
 		var size = GetComponent<RectTransform>().rect;
 		if (transform.hasChanged || oldSize != size)
 		{
+			if (graph == null)
+            {
+				
+            }
 			graph.UpdateGraph();
 			transform.hasChanged = false;
 			oldSize = size;

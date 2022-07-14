@@ -18,26 +18,51 @@ public class ClassEditor : Singleton<ClassEditor>
     public MethodMenu mtdMenu;
     public void InitializeCreation()
     {
-        graph= ClassDiagram.Instance.CreateGraph();
+        graph = ClassDiagram.Instance.CreateGraph();
         active = true;
         
     }
     public void CreateNode()
     {
-        var node = graph.AddNode();
-        node.name = "NewClass "+id;
-        var background = node.transform.Find("Background");
-        var header = background.Find("Header");
-        header.GetComponent<TMP_Text>().text = node.name;
-        var attributes = background.Find("Attributes");
-        var methods = background.Find("Methods");
-        RectTransform rc=node.GetComponent<RectTransform>();
-        rc.position= new Vector3(100f,200f,1);
+        if (graph == null)
+        {
+            InitializeCreation();
+        }
+        if (NetworkManager.Singleton.IsServer)
+        {
+            var node = graph.AddNode();
+            node.name = "NewClass " + id;
+            var background = node.transform.Find("Background");
+            var header = background.Find("Header");
+            header.GetComponent<TMP_Text>().text = node.name;
+            var attributes = background.Find("Attributes");
+            var methods = background.Find("Methods");
+            RectTransform rc = node.GetComponent<RectTransform>();
+            rc.position = new Vector3(100f, 200f, 1);
 
-        node.GetComponent<NetworkObject>().Spawn();
-        id++;
+            Networking.Spawner.Instance.SpawnClass(node);
+
+            id++;
+        }
+        else
+        {
+            Networking.Spawner.Instance.SpawnClassServerRpc();
+        }
+
+        //if (NetworkManager.Singleton.IsServer)
+        //{
+        //    node.GetComponent<NetworkObject>().Spawn();
+        //    Debug.Log("Create class - server");
+        //}
+        //else
+        //{
+        //    var nobj = Networking.Spawner.Instance;
+        //    nobj.SpawnClassServerRpc();
+        //    Debug.Log("Send RPC to server");
+        //}
 
     }
+
     public void SelectNode(GameObject selected)
     {
         if (active)
