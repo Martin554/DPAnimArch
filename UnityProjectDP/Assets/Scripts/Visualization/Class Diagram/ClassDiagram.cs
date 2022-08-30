@@ -25,6 +25,9 @@ public class ClassDiagram : Singleton<ClassDiagram>
     private Dictionary<string, GameObject> GameObjectRelations; // Dictionary of all objects created from list classes
     private Dictionary<string, GameObject> GameObjectClasses; //Dictionary of all ojects created from relations list
 
+    public List<Class> diagramClasses => DiagramClasses;
+    public Dictionary<string, GameObject> gameObjectClasses => GameObjectClasses;
+
     //Awake is called before the first frame and before Start()
     private void Awake()
     {
@@ -38,61 +41,65 @@ public class ClassDiagram : Singleton<ClassDiagram>
     private void Start()
     {
     }
-    public void ResetDiagram()
+    protected void ResetClasses()
     {
-        if (GameObjectClasses != null)
+        if (GameObjectClasses != null && GameObjectClasses.Count > 0)
         {
-            if (GameObjectClasses.Count > 0)
+            foreach (KeyValuePair<string, GameObject> kv in GameObjectClasses)
             {
-                foreach(KeyValuePair<string,GameObject> kv in GameObjectClasses)
-                {
-                    Destroy(kv.Value);
-                    //GameObjectClasses.Remove(kv.Key);
-                }
+                Destroy(kv.Value);
             }
+
             GameObjectClasses.Clear();
         }
-        if (GameObjectRelations != null)
+        DiagramClasses.Clear();
+    }
+    protected void ResetRelations()
+    {
+        if (GameObjectRelations != null && GameObjectRelations.Count > 0)
         {
-            if (GameObjectRelations.Count > 0)
+            foreach (KeyValuePair<string, GameObject> kv in GameObjectRelations)
             {
-                foreach (KeyValuePair<string, GameObject> kv in GameObjectRelations)
-                {
-                    Destroy(kv.Value);
-                    //GameObjectRelations.Remove(kv.Key);
-                }
+                Destroy(kv.Value);
             }
+
             GameObjectRelations.Clear();
         }
+
+        DiagramRelations.Clear();
+    }
+    protected void ResetGraph()
+    {
         if (graph != null)
         {
             Destroy(graph.gameObject);
             graph = null;
         }
-        DiagramClasses.Clear();
-        DiagramRelations.Clear();
+    }
+    public void ResetDiagram()
+    {
+        ResetClasses();
+        ResetRelations();
+        ResetGraph();
+        
         OALProgram.Instance.ExecutionSpace.ClassPool.Clear();
         OALProgram.Instance.ExecutionSpace= new CDClassPool();
         OALProgram.Instance.RelationshipSpace = new CDRelationshipPool();
         AnimationData.Instance.ClearData();
     }
-    /// <summary>
-    /// Todo: Martin
-    /// </summary>
     public void LoadDiagram()
     {
         CreateGraph();
-        //Call parser to load data from specified path to 
         int k = 0;
         // A trick used to skip empty diagrams in XMI file from EA
-        while (DiagramClasses.Count<1 &&k<10){
-            ParseData();
+        while (DiagramClasses.Count < 1 && k < 10)
+        {
+            ParseClassData();
+            ParseRelationData();
             k++;
             AnimationData.Instance.diagramId++;
         }
-        //Generate UI objects displaying the diagram
-        Generate();
-        //Set the layout of diagram so it is coresponding to EA view
+        GenerateDiagramGameObjects();
         ManualLayout();
     }
     public Graph CreateGraph()
@@ -106,24 +113,18 @@ public class ClassDiagram : Singleton<ClassDiagram>
         graph = go.GetComponent<Graph>();
         return graph;
     }
-
-    // Parser used to parse data from XML to C# data structures
-    void ParseData()
+    // Parse classes data from XMI to DiagramClasses member.
+    protected void ParseClassData()
     {
         List<Class> XMIClassList = XMIParser.ParseClasses();
         if (XMIClassList == null)
-        {
             XMIClassList = new List<Class>();
-        }
 
-        CDClass TempCDClass;
-        
-        //Parse all data to our List of "Class" objects
         foreach (Class CurrentClass in XMIClassList)
         {
-            CurrentClass.Name = CurrentClass.Name.Replace(" ", "_");  
+            CurrentClass.Name = CurrentClass.Name.Replace(" ", "_");
 
-            TempCDClass = null;
+            CDClass TempCDClass = null;
             int i = 0;
             string currentName = CurrentClass.Name;
             string baseName = CurrentClass.Name;
@@ -139,9 +140,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
             }
             CurrentClass.Name = currentName;
             if (TempCDClass == null)
-            {
                 continue;
-            }
 
             if (CurrentClass.Attributes != null)
             {
@@ -150,19 +149,15 @@ public class ClassDiagram : Singleton<ClassDiagram>
                     CurrentAttribute.Name = CurrentAttribute.Name.Replace(" ", "_");
                     String AttributeType = EXETypes.ConvertEATypeName(CurrentAttribute.Type);
                     if (AttributeType == null)
-                    {
                         continue;
-                    }
                     TempCDClass.AddAttribute(new CDAttribute(CurrentAttribute.Name, EXETypes.ConvertEATypeName(AttributeType)));
                     if (CurrentClass.attributes == null)
-                    {
                         CurrentClass.attributes = new List<Attribute>();
-                    }
                 }
             }
 
             if (CurrentClass.Methods != null)
-            {    
+            {
                 foreach (Method CurrentMethod in CurrentClass.Methods)
                 {
                     CurrentMethod.Name = CurrentMethod.Name.Replace(" ", "_");
@@ -182,21 +177,21 @@ public class ClassDiagram : Singleton<ClassDiagram>
             CurrentClass.Top *= -1;
             DiagramClasses.Add(CurrentClass);
         }
-
+    }
+    // Parse relations data from XMI to DiagramRelations member.
+    protected void ParseRelationData()
+    {
         List<Relation> XMIRelationList = XMIParser.ParseRelations();
         if (XMIRelationList == null)
         {
             XMIRelationList = new List<Relation>();
         }
-
-        CDRelationship TempCDRelationship;
         
-        //Parse all Relations between classes
         foreach (Relation Relation in XMIRelationList)
         {
             Relation.FromClass = Relation.SourceModelName.Replace(" ", "_");
             Relation.ToClass = Relation.TargetModelName.Replace(" ", "_");
-            //Here you assign prefabs for each type of relation
+            // Here you assign prefabs for each type of relation
             switch (Relation.PropertiesEa_type)
             {
                 case "Association": switch (Relation.ProperitesDirection)
@@ -212,8 +207,8 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 case "Realisation": Relation.PrefabType = realisationPrefab; break;
                 default: Relation.PrefabType = associationNonePrefab; break;
             }
-            
-            TempCDRelationship = OALProgram.Instance.RelationshipSpace.SpawnRelationship(Relation.FromClass, Relation.ToClass);
+
+            CDRelationship TempCDRelationship = OALProgram.Instance.RelationshipSpace.SpawnRelationship(Relation.FromClass, Relation.ToClass);
             Relation.OALName = TempCDRelationship.RelationshipName;
 
             if ("Generalization".Equals(Relation.PropertiesEa_type) || "Realisation".Equals(Relation.PropertiesEa_type))
@@ -222,22 +217,18 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 CDClass ToClass = OALProgram.Instance.ExecutionSpace.getClassByName(Relation.ToClass);
 
                 if (FromClass != null && ToClass != null)
-                {
                     FromClass.SuperClass = ToClass;
-                }
             }
 
             DiagramRelations.Add(Relation);
         }
     }
-
     //Auto arrange objects in space
     public void AutoLayout()
     {
         //TODO better automatic Layout
         graph.Layout();
     }
-
     //Set layout as close as possible to EA layout
     public void ManualLayout()
     {
@@ -247,14 +238,18 @@ public class ClassDiagram : Singleton<ClassDiagram>
         }
     }
     //Create GameObjects from the parsed data sotred in list of Classes and Relations
-    private void Generate()
+    protected void GenerateDiagramGameObjects()
     {
         Debug.Log("DIAGRAM CLASSES COUNT" + DiagramClasses.Count);
         Debug.Log("RELATION COUNT" + DiagramRelations.Count);
-        //Render classes
+        GenerateClassesGameObjects();
+        GenerateRelationGameObjects();
+    }
+    // Generates GameObjects of classes from member DiagramClasses.
+    protected void GenerateClassesGameObjects()
+    {
         for (int i = 0; i < DiagramClasses.Count; i++)
         {
-            //Setting up
             if (NetworkManager.Singleton.IsServer)
             {
                 var node = graph.AddNode();
@@ -264,7 +259,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 var attributes = background.Find("Attributes");
                 var methods = background.Find("Methods");
 
-                // Printing the values into diagram
+                // Print name of class
                 header.GetComponent<TextMeshProUGUI>().text = DiagramClasses[i].Name;
 
                 //Attributes
@@ -284,20 +279,21 @@ public class ClassDiagram : Singleton<ClassDiagram>
                         string arguments = "(";
                         if (method.arguments != null)
                         {
-                            for (int d = 0; d < method.arguments.Count; d++)
+                            for (int argumentIndex = 0; argumentIndex < method.arguments.Count; argumentIndex++)
                             {
-                                if (d < method.arguments.Count - 1)
-                                    arguments += (method.arguments[d] + ", ");
-                                else arguments += (method.arguments[d]);
+                                if (argumentIndex < method.arguments.Count - 1)
+                                    arguments += (method.arguments[argumentIndex] + ", ");
+                                else
+                                    arguments += (method.arguments[argumentIndex]);
                             }
                         }
                         arguments += ")";
                         methods.GetComponent<TextMeshProUGUI>().text += method.Name + arguments + " :" + method.ReturnValue + "\n";
                     }
                 }
-                //Add Class to Dictionary 
                 GameObjectClasses.Add(node.name, node);
                 Networking.Spawner.Instance.SpawnClass(node);
+                // Networking.Spawner.Instance.SetClassNameClientRpc("Abcd");
                 //Debug.Log(node.name);
             }
             else
@@ -305,8 +301,10 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 Networking.Spawner.Instance.SpawnClassServerRpc();
             }
         }
-
-        //Render Relations between classes
+    }
+    // Generates GameObjects of relations from member DiagramClasses.
+    protected void GenerateRelationGameObjects()
+    {
         foreach (Relation rel in DiagramRelations)
         {
             GameObject prefab = rel.PrefabType;
@@ -316,15 +314,11 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 Debug.Log("Unknown prefab");
             }
             GameObject g;
-            if (GameObjectClasses.TryGetValue(rel.FromClass,out g) && GameObjectClasses.TryGetValue(rel.ToClass, out g))
+            if (GameObjectClasses.TryGetValue(rel.FromClass, out g) && GameObjectClasses.TryGetValue(rel.ToClass, out g))
             {
                 GameObject edge = graph.AddEdge(GameObjectClasses[rel.FromClass], GameObjectClasses[rel.ToClass], prefab);
-                //Add relation node to dictionary
-                //GameObjectRelations.Add(rel.FromClass + "/" + rel.ToClass, edge);
-                //RELADD
                 GameObjectRelations.Add(rel.OALName, edge);
-                //Quickfix
-                if(edge.gameObject.transform.childCount>0)
+                if (edge.gameObject.transform.childCount > 0)
                     StartCoroutine(QuickFix(edge.transform.GetChild(0).gameObject));
             }
             else
@@ -351,24 +345,22 @@ public class ClassDiagram : Singleton<ClassDiagram>
     }
     public Method FindMethodByName(String searchedClass,String searchedMethod)
     {
-        Method result = null;
         Class c = FindClassByName(searchedClass);
-        if(c==null)
+        if (c == null)
             return null;
+        
         if (c.Methods == null)
-        {
             return null;
-        }
+        
         foreach (Method m in c.Methods)
         {
             if (m.Name.Equals(searchedMethod))
             {
-                result = m;
-                return result;
+                return m;
             }
         }
         Debug.Log("Method " + searchedMethod + "not found");
-        return result;
+        return null;
     }
     public bool AddMethod(String targetClass, Method methodToAdd)
     {
@@ -392,33 +384,26 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 
             }
             else
-            {
                 return false;
-            }
-
         }
         return true;
     }
     public Attribute FindAttributeByName(String searchedClass, String attribute)
     {
-        Attribute result = null;
         Class c = FindClassByName(searchedClass);
         if (c == null)
             return null;
+
         if (c.Attributes == null)
-        {
             return null;
-        }
+        
         foreach (Attribute atr in c.Attributes)
         {
             if (atr.Name.Equals(attribute))
-            {
-                result = atr;
-                return result;
-            }
+                return atr;
         }
         Debug.Log("Method " + attribute + "not found");
-        return result;
+        return null;
     }
     public bool AddAtr(String targetClass, Attribute atr)
     {
@@ -442,38 +427,29 @@ public class ClassDiagram : Singleton<ClassDiagram>
     }
     public GameObject FindNode(String name)
     {
-        GameObject g;
-        g = GameObjectClasses[name];
-        return g;
+        return GameObjectClasses[name];
     }
     public GameObject FindEdge(string classA, string classB)
     {
-        GameObject Result = null;
-
         CDRelationship Rel = OALProgram.Instance.RelationshipSpace.GetRelationshipByClasses(classA, classB);
         if (Rel != null)
-        {
-            Result = FindEdge(Rel.RelationshipName);
-        }
-        return Result;
+            return FindEdge(Rel.RelationshipName);
+
+        return null;
     }
     public GameObject FindEdge(string RelationshipName)
     {
-        GameObject Result = null;
         if (GameObjectRelations.ContainsKey(RelationshipName))
-        {
-            Result = GameObjectRelations[RelationshipName];
-        }
-        return Result;
+            return GameObjectRelations[RelationshipName];
+
+        return null;
     }
     public String FindOwnerOfRelation(String RelationName)
     {
         foreach (Relation Relation in DiagramRelations)
         {
             if (String.Equals(Relation.OALName, RelationName))
-            {
                 return Relation.FromClass;
-            }
         }
         return "";
     }

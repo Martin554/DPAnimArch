@@ -42,6 +42,8 @@ public class ClassEditor : Singleton<ClassEditor>
 
             Networking.Spawner.Instance.SpawnClass(node);
 
+            //Client RPC
+            Networking.Spawner.Instance.SetClassNameClientRpc("Abcd");
             id++;
         }
         else

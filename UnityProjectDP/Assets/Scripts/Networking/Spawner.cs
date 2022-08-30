@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -21,6 +22,7 @@ namespace Networking
             // initial pool
         }
 
+        // Server RPC - if client creates instance, server RPC is called and instance is created at server side.
         [ServerRpc(RequireOwnership = false)]
         public void SpawnClassServerRpc(ServerRpcParams rpcParams = default)
         {
@@ -29,9 +31,29 @@ namespace Networking
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SetClassNameServerRpc(String className)
+        public void SetClassNameServerRpc(String className, int id)
         {
-            ClassEditor.Instance.CreateNode();
+            Debug.Log("setting name1");
+            var cls = ClassDiagram.Instance.diagramClasses;
+            if (ClassDiagram.Instance.diagramClasses[id] != null)
+            {
+                ClassDiagram.Instance.diagramClasses[id].Name = className;
+                Debug.Log("setting name2");
+            }
+        }
+
+        [ClientRpc]
+        public void SetClassNameClientRpc(String className)
+        {
+            Debug.Log("setting name1");
+            //var classes = ClassDiagram.Instance.diagramClasses;
+            //Class cls = new Class();
+            //cls.Name = className;
+            //classes.Add(cls);
+            //if (classes.Count() > 0 && classes[0] != null)
+            //{
+            //    ClassDiagram.Instance.diagramClasses[0].Name = className;
+            //}
         }
 
         public void SpawnClass(GameObject go)
@@ -40,9 +62,8 @@ namespace Networking
             {
                 return;
             }
+            // else is client
             go.GetComponent<NetworkObject>().Spawn();
         }
-
-
     }
 }
