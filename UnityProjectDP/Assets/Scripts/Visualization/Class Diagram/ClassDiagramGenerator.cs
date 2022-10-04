@@ -9,6 +9,31 @@ using OALProgramControl;
 
 public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
 {
+    public Class GenerateClass(ref Graph graph)
+    {
+        Class currentClass = new Class();
+        string className = "NewClass_" + ClassEditor.Instance.Id;
+
+        CDClass tempCDClass = null;
+        int i = 0;
+        string currentName = className;
+        string baseName = className;
+        while (tempCDClass == null)
+        {
+            currentName = baseName + (i == 0 ? "" : i.ToString());
+            tempCDClass = OALProgram.Instance.ExecutionSpace.SpawnClass(currentName);
+            i++;
+            if (i > 1000)
+            {
+                break;
+            }
+        }
+        currentClass.Name = currentName;
+        currentClass.Attributes = new List<Attribute>();
+        currentClass.Methods = new List<Method>();
+        currentClass.GameObject = graph.AddNode();
+        return currentClass;
+    }
     public List<Class> GenerateClassesData(ref Graph graph)
     {
         List<Class> classes = XMIParser.ParseClasses();

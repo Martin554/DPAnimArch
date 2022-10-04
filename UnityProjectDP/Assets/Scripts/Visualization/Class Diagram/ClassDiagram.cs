@@ -133,6 +133,8 @@ public class ClassDiagram : Singleton<ClassDiagram>
         GenerateClassesGameObjects();
         GenerateRelationGameObjects();
     }
+
+
     // Generates GameObjects of classes from member DiagramClasses.
     protected void GenerateClassesGameObjects()
     {

@@ -7,7 +7,7 @@ using TMPro;
 public class ClassEditor : Singleton<ClassEditor>
 {
     Graph graph;
-    int id = 0;
+    public int Id { get; set; } = 0;
     bool active = false;
     GameObject node1;
     GameObject node2;
@@ -29,19 +29,13 @@ public class ClassEditor : Singleton<ClassEditor>
         }
         if (NetworkManager.Singleton.IsServer)
         {
-            var node = graph.AddNode();
-            node.name = "NewClass " + id;
-            var background = node.transform.Find("Background");
-            var header = background.Find("Header");
-            header.GetComponent<TMP_Text>().text = node.name;
-            var attributes = background.Find("Attributes");
-            var methods = background.Find("Methods");
-            RectTransform rc = node.GetComponent<RectTransform>();
+            var currentClass = ClassDiagramGenerator.Instance.GenerateClass(ref graph);
+            RectTransform rc = currentClass.GameObject.GetComponent<RectTransform>();
             rc.position = new Vector3(100f, 200f, 1);
 
-            Networking.Spawner.Instance.SpawnGameObject(node);
-
-            id++;
+            Networking.Spawner.Instance.SpawnGameObject(currentClass.GameObject);
+            ClassDiagram.Instance.diagramClasses.Add(currentClass);
+            Id++;
         }
         else
         {
