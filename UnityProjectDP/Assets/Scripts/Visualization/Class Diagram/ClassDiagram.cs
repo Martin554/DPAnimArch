@@ -89,7 +89,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         // A trick used to skip empty diagrams in XMI file from EA
         while (DiagramClasses.Count < 1 && k < 10)
         {
-            DiagramClasses = ClassDiagramGenerator.Instance.GenerateClassesData();
+            DiagramClasses = ClassDiagramGenerator.Instance.GenerateClassesData(ref graph);
             DiagramRelations = ClassDiagramGenerator.Instance.GenerateRelationsData();
             k++;
             AnimationData.Instance.diagramId++;
@@ -138,50 +138,9 @@ public class ClassDiagram : Singleton<ClassDiagram>
     {
         for (int i = 0; i < DiagramClasses.Count; i++)
         {
-            DiagramClasses[i].GameObject = graph.AddNode();
-            // var node = graph.AddNode();
-            //node.name = DiagramClasses[i].Name;
-            var background = DiagramClasses[i].GameObject.transform.Find("Background");
-            var header = background.Find("Header");
-            var attributes = background.Find("Attributes");
-            var methods = background.Find("Methods");
-
-            // Print name of class
-            header.GetComponent<TextMeshProUGUI>().text = DiagramClasses[i].Name;
-
-            //Attributes
-            if (DiagramClasses[i].Attributes != null)
-            {
-                foreach (Attribute attribute in DiagramClasses[i].Attributes)
-                {
-                    attributes.GetComponent<TextMeshProUGUI>().text += attribute.Name + ": " + attribute.Type + "\n";
-                }
-            }
-
-            //Methods
-            if (DiagramClasses[i].Methods != null)
-            {
-                foreach (Method method in DiagramClasses[i].Methods)
-                {
-                    string arguments = "(";
-                    if (method.arguments != null)
-                    {
-                        for (int argumentIndex = 0; argumentIndex < method.arguments.Count; argumentIndex++)
-                        {
-                            if (argumentIndex < method.arguments.Count - 1)
-                                arguments += (method.arguments[argumentIndex] + ", ");
-                            else
-                                arguments += (method.arguments[argumentIndex]);
-                        }
-                    }
-                    arguments += ")";
-                    methods.GetComponent<TextMeshProUGUI>().text += method.Name + arguments + " :" + method.ReturnValue + "\n";
-                }
-            }
-
             if (NetworkManager.Singleton.IsServer)
             {
-                // Networking.Spawner.Instance.SpawnGameObject(node);
+                Networking.Spawner.Instance.SpawnGameObject(DiagramClasses[i].GameObject);
                 Networking.SharedClassDiagram.Instance.InceremntClassCount();
             }
             else

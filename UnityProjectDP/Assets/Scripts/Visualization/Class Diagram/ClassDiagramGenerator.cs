@@ -9,7 +9,7 @@ using OALProgramControl;
 
 public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
 {
-    public List<Class> GenerateClassesData()
+    public List<Class> GenerateClassesData(ref Graph graph)
     {
         List<Class> classes = XMIParser.ParseClasses();
         if (classes == null)
@@ -37,6 +37,7 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             if (tempCDClass == null)
                 continue;
 
+
             if (currentClass.Attributes != null)
             {
                 GenerateClassAttributes(currentClass, ref tempCDClass);
@@ -46,6 +47,14 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             {
                 GenerateClassMethods(currentClass, ref tempCDClass);
             }
+            
+            currentClass.GameObject = graph.AddNode();
+
+            Debug.Assert(currentClass.GameObject);
+
+            currentClass.SetTMProAttributes();
+            currentClass.SetTMProMethods();
+            
             currentClass.Top *= -1;
         }
         return classes;
