@@ -50,7 +50,6 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
         }
         return classes;
     }
-
     public List<Relation> GenerateRelationsData()
     {
         List<Relation> relations = XMIParser.ParseRelations();
@@ -77,7 +76,6 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
         }
         return relations;
     }
-
     private GameObject GenerateRelationTypePrefab(string relationType, string direction)
     {
         switch (relationType)
@@ -97,7 +95,6 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             default: return ClassDiagram.Instance.associationNonePrefab;
         }
     }
-
     private void GenerateClassAttributes(Class currentClass, ref CDClass cdcClass)
     {
         foreach (Attribute CurrentAttribute in currentClass.Attributes)
@@ -109,7 +106,6 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             cdcClass.AddAttribute(new CDAttribute(CurrentAttribute.Name, EXETypes.ConvertEATypeName(AttributeType)));
         }
     }
-
     private void GenerateClassMethods(Class currentClass, ref CDClass cdcClass)
     {
         foreach (Method CurrentMethod in currentClass.Methods)
@@ -128,6 +124,4 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             }
         }
     }
-
-
 }

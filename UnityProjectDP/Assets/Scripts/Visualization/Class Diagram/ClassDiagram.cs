@@ -23,16 +23,13 @@ public class ClassDiagram : Singleton<ClassDiagram>
     private List<Class> DiagramClasses; //List of all classes from XMI
     private List<Relation> DiagramRelations; //List of all relations from XMI
     private Dictionary<string, GameObject> GameObjectRelations; // Dictionary of all objects created from list classes
-    private Dictionary<string, GameObject> GameObjectClasses; //Dictionary of all ojects created from relations list
 
     public List<Class> diagramClasses => DiagramClasses;
-    public Dictionary<string, GameObject> gameObjectClasses => GameObjectClasses;
 
     //Awake is called before the first frame and before Start()
     private void Awake()
     {
         //Asign memory for variables before the first frame
-        GameObjectClasses = new Dictionary<string, GameObject>();
         GameObjectRelations = new Dictionary<string, GameObject>();
         DiagramClasses = new List<Class>();
         DiagramRelations = new List<Relation>();
@@ -43,16 +40,14 @@ public class ClassDiagram : Singleton<ClassDiagram>
     }
     protected void ResetClasses()
     {
-        if (GameObjectClasses != null && GameObjectClasses.Count > 0)
+        if (diagramClasses != null)
         {
-            foreach (KeyValuePair<string, GameObject> kv in GameObjectClasses)
+            foreach (Class currentClass in diagramClasses)
             {
-                Destroy(kv.Value);
+                Destroy(currentClass.Prefab);
             }
-
-            GameObjectClasses.Clear();
+            diagramClasses.Clear();
         }
-        DiagramClasses.Clear();
     }
     protected void ResetRelations()
     {
@@ -127,9 +122,9 @@ public class ClassDiagram : Singleton<ClassDiagram>
     //Set layout as close as possible to EA layout
     public void ManualLayout()
     {
-        foreach (Class c in DiagramClasses)
+        foreach (Class currentClass in DiagramClasses)
         {
-            GameObjectClasses[c.Name].GetComponent<RectTransform>().position = new Vector3(c.Left*1.25f, c.Top*1.25f);
+            currentClass.Prefab.GetComponent<RectTransform>().position = new Vector3(currentClass.Left*1.25f, currentClass.Top*1.25f);
         }
     }
     //Create GameObjects from the parsed data sotred in list of Classes and Relations
@@ -143,9 +138,10 @@ public class ClassDiagram : Singleton<ClassDiagram>
     {
         for (int i = 0; i < DiagramClasses.Count; i++)
         {
-            var node = graph.AddNode();
-            node.name = DiagramClasses[i].Name;
-            var background = node.transform.Find("Background");
+            DiagramClasses[i].Prefab = graph.AddNode();
+            // var node = graph.AddNode();
+            //node.name = DiagramClasses[i].Name;
+            var background = DiagramClasses[i].Prefab.transform.Find("Background");
             var header = background.Find("Header");
             var attributes = background.Find("Attributes");
             var methods = background.Find("Methods");
@@ -156,9 +152,9 @@ public class ClassDiagram : Singleton<ClassDiagram>
             //Attributes
             if (DiagramClasses[i].Attributes != null)
             {
-                foreach (Attribute attr in DiagramClasses[i].Attributes)
+                foreach (Attribute attribute in DiagramClasses[i].Attributes)
                 {
-                    attributes.GetComponent<TextMeshProUGUI>().text += attr.Name + ": " + attr.Type + "\n";
+                    attributes.GetComponent<TextMeshProUGUI>().text += attribute.Name + ": " + attribute.Type + "\n";
                 }
             }
 
@@ -183,11 +179,11 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 }
             }
 
-            GameObjectClasses.Add(node.name, node);
+            // GameObjectClasses.Add(DiagramClasses[i].Name, DiagramClasses[i].Prefab);
 
             if (NetworkManager.Singleton.IsServer)
             {
-                Networking.Spawner.Instance.SpawnGameObject(node);
+                // Networking.Spawner.Instance.SpawnGameObject(node);
                 Networking.SharedClassDiagram.Instance.InceremntClassCount();
             }
             else
@@ -209,9 +205,11 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 Debug.Log("Unknown prefab");
             }
             GameObject g;
-            if (GameObjectClasses.TryGetValue(rel.FromClass, out g) && GameObjectClasses.TryGetValue(rel.ToClass, out g))
+            var fromClass = diagramClasses.Find(item => item.Name == rel.FromClass).Prefab;
+            var toClass = diagramClasses.Find(item => item.Name == rel.ToClass).Prefab;
+            if (fromClass && toClass)
             {
-                GameObject edge = graph.AddEdge(GameObjectClasses[rel.FromClass], GameObjectClasses[rel.ToClass], prefab);
+                GameObject edge = graph.AddEdge(fromClass, toClass, prefab);
                 GameObjectRelations.Add(rel.OALName, edge);
                 if (edge.gameObject.transform.childCount > 0)
                     StartCoroutine(QuickFix(edge.transform.GetChild(0).gameObject));
@@ -220,7 +218,6 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 Debug.Log("Cant find specified Edge in Dictionary");
         }
     }
-
     public Class FindClassByName(String searchedClass)
     {
         Class result=null;
@@ -264,7 +261,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
             return false;
         else
         {
-            if (FindMethodByName(targetClass, methodToAdd.Name)==null)
+            if (FindMethodByName(targetClass, methodToAdd.Name) == null)
             {
                 if (c.Methods == null)
                 {
@@ -322,7 +319,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
     }
     public GameObject FindNode(String name)
     {
-        return GameObjectClasses[name];
+        return diagramClasses.Find(item => item.Name == name).Prefab;
     }
     public GameObject FindEdge(string classA, string classB)
     {
@@ -368,5 +365,4 @@ public class ClassDiagram : Singleton<ClassDiagram>
     {
         GameObject edge = graph.AddEdge(node1, node2, associationFullPrefab);
     }
-
 }

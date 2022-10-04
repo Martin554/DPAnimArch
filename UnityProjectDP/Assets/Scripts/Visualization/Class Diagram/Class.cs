@@ -7,7 +7,7 @@ public class Class
 {
     private List<Attribute> attributes;
     private List<Method> methods;
-
+    private GameObject prefab;
     public string Name { get; set; }
     public string XmiId { get; set; }
     public string Visibility { get; set; }
@@ -20,7 +20,18 @@ public class Class
     public string Type { get; set; }
     internal List<Attribute> Attributes { get; set; }
     internal List<Method> Methods { get; set; }
-
+    internal GameObject Prefab
+    {
+        get
+        {
+            return prefab;
+        }
+        set
+        {
+            this.prefab = value;
+            this.prefab.name = this.Name;
+        }
+    }
     public Class()
     {
     }
