@@ -5,8 +5,8 @@ using Unity.Netcode;
 
 public class Class
 {
-    public List<Attribute> attributes;
-    public List<Method> methods;
+    private List<Attribute> attributes;
+    private List<Method> methods;
 
     public string Name { get; set; }
     public string XmiId { get; set; }

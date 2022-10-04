@@ -94,8 +94,8 @@ public class ClassDiagram : Singleton<ClassDiagram>
         // A trick used to skip empty diagrams in XMI file from EA
         while (DiagramClasses.Count < 1 && k < 10)
         {
-            ParseClassData();
-            ParseRelationData();
+            DiagramClasses = ClassDiagramGenerator.Instance.GenerateClassesData();
+            DiagramRelations = ClassDiagramGenerator.Instance.GenerateRelationsData();
             k++;
             AnimationData.Instance.diagramId++;
         }
@@ -117,116 +117,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         }
         return graph;
     }
-    // Parse classes data from XMI to DiagramClasses member.
-    protected void ParseClassData()
-    {
-        List<Class> XMIClassList = XMIParser.ParseClasses();
-        if (XMIClassList == null)
-            XMIClassList = new List<Class>();
 
-        foreach (Class CurrentClass in XMIClassList)
-        {
-            CurrentClass.Name = CurrentClass.Name.Replace(" ", "_");
-
-            CDClass TempCDClass = null;
-            int i = 0;
-            string currentName = CurrentClass.Name;
-            string baseName = CurrentClass.Name;
-            while (TempCDClass == null)
-            {
-                currentName = baseName + (i == 0 ? "" : i.ToString());
-                TempCDClass = OALProgram.Instance.ExecutionSpace.SpawnClass(currentName);
-                i++;
-                if (i > 1000)
-                {
-                    break;
-                }
-            }
-            CurrentClass.Name = currentName;
-            if (TempCDClass == null)
-                continue;
-
-            if (CurrentClass.Attributes != null)
-            {
-                foreach (Attribute CurrentAttribute in CurrentClass.Attributes)
-                {
-                    CurrentAttribute.Name = CurrentAttribute.Name.Replace(" ", "_");
-                    String AttributeType = EXETypes.ConvertEATypeName(CurrentAttribute.Type);
-                    if (AttributeType == null)
-                        continue;
-                    TempCDClass.AddAttribute(new CDAttribute(CurrentAttribute.Name, EXETypes.ConvertEATypeName(AttributeType)));
-                    if (CurrentClass.attributes == null)
-                        CurrentClass.attributes = new List<Attribute>();
-                }
-            }
-
-            if (CurrentClass.Methods != null)
-            {
-                foreach (Method CurrentMethod in CurrentClass.Methods)
-                {
-                    CurrentMethod.Name = CurrentMethod.Name.Replace(" ", "_");
-                    CDMethod Method = new CDMethod(TempCDClass, CurrentMethod.Name, EXETypes.ConvertEATypeName(CurrentMethod.ReturnValue));
-                    TempCDClass.AddMethod(Method);
-
-                    foreach (string arg in CurrentMethod.arguments)
-                    {
-                        string[] tokens = arg.Split(' ');
-                        string type = tokens[0];
-                        string name = tokens[1];
-
-                        Method.Parameters.Add(new CDParameter() { Name = name, Type = EXETypes.ConvertEATypeName(type) });
-                    }
-                }
-            }
-            CurrentClass.Top *= -1;
-            DiagramClasses.Add(CurrentClass);
-        }
-    }
-    // Parse relations data from XMI to DiagramRelations member.
-    protected void ParseRelationData()
-    {
-        List<Relation> XMIRelationList = XMIParser.ParseRelations();
-        if (XMIRelationList == null)
-        {
-            XMIRelationList = new List<Relation>();
-        }
-        
-        foreach (Relation Relation in XMIRelationList)
-        {
-            Relation.FromClass = Relation.SourceModelName.Replace(" ", "_");
-            Relation.ToClass = Relation.TargetModelName.Replace(" ", "_");
-            // Here you assign prefabs for each type of relation
-            switch (Relation.PropertiesEa_type)
-            {
-                case "Association": switch (Relation.ProperitesDirection)
-                    {
-                        case "Source -> Destination": Relation.PrefabType = associationSDPrefab; break;
-                        case "Destination -> Source": Relation.PrefabType = associationDSPrefab; break;
-                        case "Bi-Directional": Relation.PrefabType = associationFullPrefab; break;
-                        default: Relation.PrefabType = associationNonePrefab; break;
-                    }
-                    break;
-                case "Generalization": Relation.PrefabType = generalizationPrefab; break;
-                case "Dependency": Relation.PrefabType = dependsPrefab; break;
-                case "Realisation": Relation.PrefabType = realisationPrefab; break;
-                default: Relation.PrefabType = associationNonePrefab; break;
-            }
-
-            CDRelationship TempCDRelationship = OALProgram.Instance.RelationshipSpace.SpawnRelationship(Relation.FromClass, Relation.ToClass);
-            Relation.OALName = TempCDRelationship.RelationshipName;
-
-            if ("Generalization".Equals(Relation.PropertiesEa_type) || "Realisation".Equals(Relation.PropertiesEa_type))
-            {
-                CDClass FromClass = OALProgram.Instance.ExecutionSpace.getClassByName(Relation.FromClass);
-                CDClass ToClass = OALProgram.Instance.ExecutionSpace.getClassByName(Relation.ToClass);
-
-                if (FromClass != null && ToClass != null)
-                    FromClass.SuperClass = ToClass;
-            }
-
-            DiagramRelations.Add(Relation);
-        }
-    }
     //Auto arrange objects in space
     public void AutoLayout()
     {
