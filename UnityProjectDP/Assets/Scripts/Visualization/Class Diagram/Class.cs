@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class Class 
+public class Class
 {
     public List<Attribute> attributes;
     public List<Method> methods;
-
 
     public string Name { get; set; }
     public string XmiId { get; set; }

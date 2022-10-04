@@ -40,15 +40,13 @@ public class ClassEditor : Singleton<ClassEditor>
             RectTransform rc = node.GetComponent<RectTransform>();
             rc.position = new Vector3(100f, 200f, 1);
 
-            Networking.Spawner.Instance.SpawnClass(node);
+            // Networking.Spawner.Instance.SpawnClass(node);
 
-            //Client RPC
-            Networking.Spawner.Instance.SetClassNameClientRpc("Abcd");
             id++;
         }
         else
         {
-            Networking.Spawner.Instance.SpawnClassServerRpc();
+            // Networking.Spawner.Instance.SpawnClassServerRpc();
         }
 
         //if (NetworkManager.Singleton.IsServer)

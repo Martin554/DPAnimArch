@@ -14,8 +14,7 @@ namespace Networking
     {
         [SerializeField]
         private GameObject classPrefab;
-         
-
+       
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
@@ -29,40 +28,12 @@ namespace Networking
             Debug.Log("Executing spawn class RPC");
             ClassEditor.Instance.CreateNode();
         }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void SetClassNameServerRpc(String className, int id)
-        {
-            Debug.Log("setting name1");
-            var cls = ClassDiagram.Instance.diagramClasses;
-            if (ClassDiagram.Instance.diagramClasses[id] != null)
-            {
-                ClassDiagram.Instance.diagramClasses[id].Name = className;
-                Debug.Log("setting name2");
-            }
-        }
-
-        [ClientRpc]
-        public void SetClassNameClientRpc(String className)
-        {
-            Debug.Log("setting name1");
-            //var classes = ClassDiagram.Instance.diagramClasses;
-            //Class cls = new Class();
-            //cls.Name = className;
-            //classes.Add(cls);
-            //if (classes.Count() > 0 && classes[0] != null)
-            //{
-            //    ClassDiagram.Instance.diagramClasses[0].Name = className;
-            //}
-        }
-
+        // Spawn Class GameObject over the network. After spawning class, it will be visible for clients.
         public void SpawnClass(GameObject go)
         {
             if (!NetworkManager.Singleton.IsServer)
-            {
                 return;
-            }
-            // else is client
+
             go.GetComponent<NetworkObject>().Spawn();
         }
     }

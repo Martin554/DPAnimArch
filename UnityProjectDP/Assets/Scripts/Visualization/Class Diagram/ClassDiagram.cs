@@ -106,10 +106,6 @@ public class ClassDiagram : Singleton<ClassDiagram>
     {
         ResetDiagram();
         var go = GameObject.Instantiate(graphPrefab);
-        if (NetworkManager.Singleton.IsServer)
-        {
-            go.GetComponent<NetworkObject>().Spawn();
-        }
         graph = go.GetComponent<Graph>();
         return graph;
     }
@@ -250,55 +246,89 @@ public class ClassDiagram : Singleton<ClassDiagram>
     {
         for (int i = 0; i < DiagramClasses.Count; i++)
         {
+            var node = graph.AddNode();
+            node.name = DiagramClasses[i].Name;
+            var background = node.transform.Find("Background");
+            var header = background.Find("Header");
+            var attributes = background.Find("Attributes");
+            var methods = background.Find("Methods");
+
+            // Print name of class
+            header.GetComponent<TextMeshProUGUI>().text = DiagramClasses[i].Name;
+
+            //Attributes
+            if (DiagramClasses[i].Attributes != null)
+            {
+                foreach (Attribute attr in DiagramClasses[i].Attributes)
+                {
+                    attributes.GetComponent<TextMeshProUGUI>().text += attr.Name + ": " + attr.Type + "\n";
+                }
+            }
+
+            //Methods
+            if (DiagramClasses[i].Methods != null)
+            {
+                foreach (Method method in DiagramClasses[i].Methods)
+                {
+                    string arguments = "(";
+                    if (method.arguments != null)
+                    {
+                        for (int argumentIndex = 0; argumentIndex < method.arguments.Count; argumentIndex++)
+                        {
+                            if (argumentIndex < method.arguments.Count - 1)
+                                arguments += (method.arguments[argumentIndex] + ", ");
+                            else
+                                arguments += (method.arguments[argumentIndex]);
+                        }
+                    }
+                    arguments += ")";
+                    methods.GetComponent<TextMeshProUGUI>().text += method.Name + arguments + " :" + method.ReturnValue + "\n";
+                }
+            }
+
+            GameObjectClasses.Add(node.name, node);
             if (NetworkManager.Singleton.IsServer)
             {
-                var node = graph.AddNode();
-                node.name = DiagramClasses[i].Name;
-                var background = node.transform.Find("Background");
-                var header = background.Find("Header");
-                var attributes = background.Find("Attributes");
-                var methods = background.Find("Methods");
+                // Networking.Spawner.Instance.SpawnClassServerRpc();
 
-                // Print name of class
-                header.GetComponent<TextMeshProUGUI>().text = DiagramClasses[i].Name;
+                //    Networking.Spawner.Instance.SpawnClass(node);
 
-                //Attributes
-                if (DiagramClasses[i].Attributes != null)
+                //    var spawnerInstance = Networking.SharedClassDiagram.Instance;
+                //    if (!spawnerInstance.IsSpawned)
+                //    {
+                //        spawnerInstance.GetComponent<NetworkObject>().Spawn();
+                //    }
+                //    Networking.SharedClassDiagram.Instance.InceremntClassCount();
+                //    Networking.SharedClassDiagram.Instance.SetClassNameClientRpc(i, node.name);
+                //}
+                //else
+                //{
+                //    Networking.Spawner.Instance.SpawnClassServerRpc();
+                //    Networking.SharedClassDiagram.Instance.IncrementClassCountServerRpc();
+                //}
+            }
+
+            if (NetworkManager.Singleton.IsServer)
+            {
+                //var networkedGraph = graph.GetComponent<NetworkObject>();
+                //networkedGraph.Spawn();
+                // var graphAsParent = graph.transform.Find("Units");
+
+
+                foreach (KeyValuePair<string, GameObject> pair in GameObjectClasses)
                 {
-                    foreach (Attribute attr in DiagramClasses[i].Attributes)
-                    {
-                        attributes.GetComponent<TextMeshProUGUI>().text += attr.Name + ": " + attr.Type + "\n";
-                    }
-                }
+                    var networkedClass = pair.Value.GetComponent<NetworkObject>();
+                    networkedClass.Spawn();
 
-                //Methods
-                if (DiagramClasses[i].Methods != null)
-                {
-                    foreach (Method method in DiagramClasses[i].Methods)
-                    {
-                        string arguments = "(";
-                        if (method.arguments != null)
-                        {
-                            for (int argumentIndex = 0; argumentIndex < method.arguments.Count; argumentIndex++)
-                            {
-                                if (argumentIndex < method.arguments.Count - 1)
-                                    arguments += (method.arguments[argumentIndex] + ", ");
-                                else
-                                    arguments += (method.arguments[argumentIndex]);
-                            }
-                        }
-                        arguments += ")";
-                        methods.GetComponent<TextMeshProUGUI>().text += method.Name + arguments + " :" + method.ReturnValue + "\n";
-                    }
+
+                    // var result = networkedClass.TrySetParent(networkedGraph);
                 }
-                GameObjectClasses.Add(node.name, node);
-                Networking.Spawner.Instance.SpawnClass(node);
-                // Networking.Spawner.Instance.SetClassNameClientRpc("Abcd");
-                //Debug.Log(node.name);
             }
             else
             {
                 Networking.Spawner.Instance.SpawnClassServerRpc();
+                Networking.SharedClassDiagram.Instance.SetClassNameServerRpc(node.name);
+                Networking.SharedClassDiagram.Instance.IncrementClassCountServerRpc();
             }
         }
     }

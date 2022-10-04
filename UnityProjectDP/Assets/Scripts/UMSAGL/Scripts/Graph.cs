@@ -121,7 +121,6 @@ public class Graph : MonoBehaviour
 		settings = new SugiyamaLayoutSettings();
 		settings.EdgeRoutingSettings.EdgeRoutingMode = EdgeRoutingMode.RectilinearToCenter;
         GetComponent<Canvas>().worldCamera = Camera.main;
-
     }
 
 	void PositionNodes()
