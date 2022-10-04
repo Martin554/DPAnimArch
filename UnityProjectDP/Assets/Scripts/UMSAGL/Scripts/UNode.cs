@@ -7,7 +7,8 @@ public class UNode : Unit
 {
 	public Node GraphNode { get; set; }
 
-	public Rect Size {
+	public Rect Size 
+	{
 		get
 		{
 			return GetComponent<RectTransform>().rect;
@@ -18,6 +19,11 @@ public class UNode : Unit
 
 	protected override void OnDestroy()
 	{
+		if (graph == null)
+        {
+			// TODO:
+			return;
+        }
 		graph.RemoveNode(gameObject);
 	}
 
@@ -33,12 +39,12 @@ public class UNode : Unit
 		{
 			if (graph == null)
             {
-				
+				// TODO: networking on client side - graph is null.
+				return;
             }
 			graph.UpdateGraph();
 			transform.hasChanged = false;
 			oldSize = size;
 		}
 	}
-
 }

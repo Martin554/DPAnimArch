@@ -28,8 +28,16 @@ namespace Networking
             Debug.Log("Executing spawn class RPC");
             ClassEditor.Instance.CreateNode();
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnGraphServerRpc(ServerRpcParams rpcParams = default)
+        {
+            Debug.Log("Executing spawn graph RPC");
+            ClassEditor.Instance.InitializeCreation();
+        }
+
         // Spawn Class GameObject over the network. After spawning class, it will be visible for clients.
-        public void SpawnClass(GameObject go)
+        public void SpawnGameObject(GameObject go)
         {
             if (!NetworkManager.Singleton.IsServer)
                 return;

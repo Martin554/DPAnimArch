@@ -20,7 +20,6 @@ public class ClassEditor : Singleton<ClassEditor>
     {
         graph = ClassDiagram.Instance.CreateGraph();
         active = true;
-        
     }
     public void CreateNode()
     {
@@ -40,27 +39,14 @@ public class ClassEditor : Singleton<ClassEditor>
             RectTransform rc = node.GetComponent<RectTransform>();
             rc.position = new Vector3(100f, 200f, 1);
 
-            // Networking.Spawner.Instance.SpawnClass(node);
+            Networking.Spawner.Instance.SpawnGameObject(node);
 
             id++;
         }
         else
         {
-            // Networking.Spawner.Instance.SpawnClassServerRpc();
+            Networking.Spawner.Instance.SpawnClassServerRpc();
         }
-
-        //if (NetworkManager.Singleton.IsServer)
-        //{
-        //    node.GetComponent<NetworkObject>().Spawn();
-        //    Debug.Log("Create class - server");
-        //}
-        //else
-        //{
-        //    var nobj = Networking.Spawner.Instance;
-        //    nobj.SpawnClassServerRpc();
-        //    Debug.Log("Send RPC to server");
-        //}
-
     }
 
     public void SelectNode(GameObject selected)
@@ -83,18 +69,15 @@ public class ClassEditor : Singleton<ClassEditor>
                 node1 = selected;
             }
         }
-
-       
     }
     public void DrawRelation()
     {
-        if(node1!=null && node2 != null)
+        if(node1 != null && node2 != null)
         {
             ClassDiagram.Instance.CreateRelationEdge(node1, node2);
             node1 = null;
             node2 = null;
             graph.UpdateGraph();
         }
-        
     }
 }

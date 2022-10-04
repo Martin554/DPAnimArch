@@ -105,8 +105,16 @@ public class ClassDiagram : Singleton<ClassDiagram>
     public Graph CreateGraph()
     {
         ResetDiagram();
-        var go = GameObject.Instantiate(graphPrefab);
-        graph = go.GetComponent<Graph>();
+        var graphGameObject = GameObject.Instantiate(graphPrefab);
+        graph = graphGameObject.GetComponent<Graph>();
+        if (NetworkManager.Singleton.IsServer)
+        {
+            Networking.Spawner.Instance.SpawnGameObject(graphGameObject);
+        }
+        else
+        {
+            Networking.Spawner.Instance.SpawnClassServerRpc();
+        }
         return graph;
     }
     // Parse classes data from XMI to DiagramClasses member.
@@ -236,8 +244,6 @@ public class ClassDiagram : Singleton<ClassDiagram>
     //Create GameObjects from the parsed data sotred in list of Classes and Relations
     protected void GenerateDiagramGameObjects()
     {
-        Debug.Log("DIAGRAM CLASSES COUNT" + DiagramClasses.Count);
-        Debug.Log("RELATION COUNT" + DiagramRelations.Count);
         GenerateClassesGameObjects();
         GenerateRelationGameObjects();
     }
@@ -287,47 +293,15 @@ public class ClassDiagram : Singleton<ClassDiagram>
             }
 
             GameObjectClasses.Add(node.name, node);
-            if (NetworkManager.Singleton.IsServer)
-            {
-                // Networking.Spawner.Instance.SpawnClassServerRpc();
-
-                //    Networking.Spawner.Instance.SpawnClass(node);
-
-                //    var spawnerInstance = Networking.SharedClassDiagram.Instance;
-                //    if (!spawnerInstance.IsSpawned)
-                //    {
-                //        spawnerInstance.GetComponent<NetworkObject>().Spawn();
-                //    }
-                //    Networking.SharedClassDiagram.Instance.InceremntClassCount();
-                //    Networking.SharedClassDiagram.Instance.SetClassNameClientRpc(i, node.name);
-                //}
-                //else
-                //{
-                //    Networking.Spawner.Instance.SpawnClassServerRpc();
-                //    Networking.SharedClassDiagram.Instance.IncrementClassCountServerRpc();
-                //}
-            }
 
             if (NetworkManager.Singleton.IsServer)
             {
-                //var networkedGraph = graph.GetComponent<NetworkObject>();
-                //networkedGraph.Spawn();
-                // var graphAsParent = graph.transform.Find("Units");
-
-
-                foreach (KeyValuePair<string, GameObject> pair in GameObjectClasses)
-                {
-                    var networkedClass = pair.Value.GetComponent<NetworkObject>();
-                    networkedClass.Spawn();
-
-
-                    // var result = networkedClass.TrySetParent(networkedGraph);
-                }
+                Networking.Spawner.Instance.SpawnGameObject(node);
+                Networking.SharedClassDiagram.Instance.InceremntClassCount();
             }
             else
             {
                 Networking.Spawner.Instance.SpawnClassServerRpc();
-                Networking.SharedClassDiagram.Instance.SetClassNameServerRpc(node.name);
                 Networking.SharedClassDiagram.Instance.IncrementClassCountServerRpc();
             }
         }
