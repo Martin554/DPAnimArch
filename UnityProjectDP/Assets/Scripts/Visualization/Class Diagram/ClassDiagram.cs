@@ -44,7 +44,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         {
             foreach (Class currentClass in diagramClasses)
             {
-                Destroy(currentClass.Prefab);
+                Destroy(currentClass.GameObject);
             }
             diagramClasses.Clear();
         }
@@ -124,7 +124,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
     {
         foreach (Class currentClass in DiagramClasses)
         {
-            currentClass.Prefab.GetComponent<RectTransform>().position = new Vector3(currentClass.Left*1.25f, currentClass.Top*1.25f);
+            currentClass.GameObject.GetComponent<RectTransform>().position = new Vector3(currentClass.Left*1.25f, currentClass.Top*1.25f);
         }
     }
     //Create GameObjects from the parsed data sotred in list of Classes and Relations
@@ -138,10 +138,10 @@ public class ClassDiagram : Singleton<ClassDiagram>
     {
         for (int i = 0; i < DiagramClasses.Count; i++)
         {
-            DiagramClasses[i].Prefab = graph.AddNode();
+            DiagramClasses[i].GameObject = graph.AddNode();
             // var node = graph.AddNode();
             //node.name = DiagramClasses[i].Name;
-            var background = DiagramClasses[i].Prefab.transform.Find("Background");
+            var background = DiagramClasses[i].GameObject.transform.Find("Background");
             var header = background.Find("Header");
             var attributes = background.Find("Attributes");
             var methods = background.Find("Methods");
@@ -179,8 +179,6 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 }
             }
 
-            // GameObjectClasses.Add(DiagramClasses[i].Name, DiagramClasses[i].Prefab);
-
             if (NetworkManager.Singleton.IsServer)
             {
                 // Networking.Spawner.Instance.SpawnGameObject(node);
@@ -205,8 +203,8 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 Debug.Log("Unknown prefab");
             }
             GameObject g;
-            var fromClass = diagramClasses.Find(item => item.Name == rel.FromClass).Prefab;
-            var toClass = diagramClasses.Find(item => item.Name == rel.ToClass).Prefab;
+            var fromClass = diagramClasses.Find(item => item.Name == rel.FromClass).GameObject;
+            var toClass = diagramClasses.Find(item => item.Name == rel.ToClass).GameObject;
             if (fromClass && toClass)
             {
                 GameObject edge = graph.AddEdge(fromClass, toClass, prefab);
@@ -319,7 +317,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
     }
     public GameObject FindNode(String name)
     {
-        return diagramClasses.Find(item => item.Name == name).Prefab;
+        return diagramClasses.Find(item => item.Name == name).GameObject;
     }
     public GameObject FindEdge(string classA, string classB)
     {
