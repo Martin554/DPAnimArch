@@ -36,6 +36,25 @@ namespace Networking
             ClassEditor.Instance.InitializeCreation();
         }
 
+        [ClientRpc]
+        public void SetAttributeClientRpc(string attributeText)
+        {
+            if (NetworkManager.Singleton.IsHost)
+                return;
+            Debug.Log("Add attribute name: " + attributeText);
+            Attribute attribute = new Attribute();
+            attribute.Name = attributeText;
+            ClassDiagram.Instance.AddAttribute("Class", attribute);
+        }
+
+        [ClientRpc]
+        public void AddClassToModelClientRpc(string className)
+        {
+            if (NetworkManager.Singleton.IsHost)
+                return;
+            Debug.Log("Add class with name: " + className);
+        }
+
         // Spawn Class GameObject over the network. After spawning class, it will be visible for clients.
         public void SpawnGameObject(GameObject go)
         {

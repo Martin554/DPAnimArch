@@ -34,6 +34,7 @@ public class ClassEditor : Singleton<ClassEditor>
             rc.position = new Vector3(100f, 200f, 1);
 
             Networking.Spawner.Instance.SpawnGameObject(currentClass.GameObject);
+            Networking.Spawner.Instance.AddClassToModelClientRpc(currentClass.Name);
             ClassDiagram.Instance.diagramClasses.Add(currentClass);
             Id++;
         }

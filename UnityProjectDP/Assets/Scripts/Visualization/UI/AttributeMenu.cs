@@ -9,42 +9,42 @@ public class AttributeMenu : MonoBehaviour
     public GameObject AtrPanel;
     public TMP_InputField inp;
     public TMP_Dropdown dropdown;
-    private TMP_Text atrTxt;
-    private TMP_Text classTxt;
-    private Attribute atr;
+    private TMP_Text attributeText;
+    private TMP_Text classText;
+    private Attribute attribute;
     public Toggle isArray;
-    public void ActivateCreation(TMP_Text classTxt,TMP_Text atrTxt)
+    public void ActivateCreation(TMP_Text classText,TMP_Text attributeText)
     {
         AtrPanel.SetActive(true);
-        this.atrTxt = atrTxt;
-        this.classTxt = classTxt;
-        atr = new Attribute();
+        this.attributeText = attributeText;
+        this.classText = classText;
+        attribute = new Attribute();
 
     }
     public void SetName(string atrName)
     {
-        atr.Name = atrName;
+        attribute.Name = atrName;
     }
     public void SetType(string type)
     {
-        atr.Type = type;
+        attribute.Type = type;
     }
     public void SaveAtr()
     {
         SetName(inp.text);
         SetType(dropdown.options[dropdown.value].text);
-        if (ClassDiagram.Instance.AddAtr(classTxt.text, atr))
+        if (ClassDiagram.Instance.AddAttribute(classText.text, attribute))
         {
             if (isArray.isOn)
             {
-                atrTxt.text += atr.Name + "[]: " + atr.Type + "\n";
+                attributeText.text += attribute.Name + "[]: " + attribute.Type + "\n";
             }
             else
             {
-                atrTxt.text += atr.Name + ": " + atr.Type + "\n";
+                attributeText.text += attribute.Name + ": " + attribute.Type + "\n";
             }
         }
-        atr = new Attribute();
+        attribute = new Attribute();
         AtrPanel.SetActive(false);
         inp.text = "";
         isArray.isOn = false;

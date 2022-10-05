@@ -34,6 +34,11 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
         currentClass.GameObject = graph.AddNode();
         return currentClass;
     }
+
+    public void SetClassAttribute(ref Class currentClass, Attribute attribute)
+    {
+        
+    }
     public List<Class> GenerateClassesData(ref Graph graph)
     {
         List<Class> classes = XMIParser.ParseClasses();

@@ -179,7 +179,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
     }
     public Class FindClassByName(String searchedClass)
     {
-        Class result=null;
+        Class result = null;
         foreach(Class c in DiagramClasses)
         {
             if (c.Name.Equals(searchedClass))
@@ -256,7 +256,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         Debug.Log("Method " + attribute + "not found");
         return null;
     }
-    public bool AddAtr(String targetClass, Attribute atr)
+    public bool AddAttribute(String targetClass, Attribute atr)
     {
         Class c = FindClassByName(targetClass);
         if (c == null)
@@ -273,6 +273,10 @@ public class ClassDiagram : Singleton<ClassDiagram>
             }
             else return false;
 
+        }
+        if (NetworkManager.Singleton.IsServer)
+        {
+            Networking.Spawner.Instance.SetAttributeClientRpc(atr.Name);
         }
         return true;
     }
