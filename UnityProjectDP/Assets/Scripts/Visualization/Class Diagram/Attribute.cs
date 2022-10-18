@@ -14,5 +14,4 @@ public class Attribute
         this.Name = name;
     }
     public Attribute() { }
-
 }

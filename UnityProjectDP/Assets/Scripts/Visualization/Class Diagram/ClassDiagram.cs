@@ -24,6 +24,8 @@ public class ClassDiagram : Singleton<ClassDiagram>
     private List<Relation> DiagramRelations; //List of all relations from XMI
     private Dictionary<string, GameObject> GameObjectRelations; // Dictionary of all objects created from list classes
 
+    // private DiagramModel<MetadataClass> classDiagram;
+
     public List<Class> diagramClasses => DiagramClasses;
 
     //Awake is called before the first frame and before Start()
@@ -34,6 +36,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         DiagramClasses = new List<Class>();
         DiagramRelations = new List<Relation>();
         ResetDiagram();
+        ClassDiagramModel.Instance.ResetDiagram();
     }
     private void Start()
     {
@@ -76,7 +79,9 @@ public class ClassDiagram : Singleton<ClassDiagram>
         ResetClasses();
         ResetRelations();
         ResetGraph();
-        
+
+        ClassDiagramModel.Instance.ResetDiagram();
+
         OALProgram.Instance.ExecutionSpace.ClassPool.Clear();
         OALProgram.Instance.ExecutionSpace= new CDClassPool();
         OALProgram.Instance.RelationshipSpace = new CDRelationshipPool();
@@ -89,12 +94,26 @@ public class ClassDiagram : Singleton<ClassDiagram>
         // A trick used to skip empty diagrams in XMI file from EA
         while (DiagramClasses.Count < 1 && k < 10)
         {
+            // View - generate GameObjects + CD data
             DiagramClasses = ClassDiagramGenerator.Instance.GenerateClassesData(ref graph);
             DiagramRelations = ClassDiagramGenerator.Instance.GenerateRelationsData();
             k++;
             AnimationData.Instance.diagramId++;
         }
+
+        foreach(var currentClass in DiagramClasses)
+        {
+            ClassDiagramModel.Instance.AddElement(currentClass.Name);
+            // Networking.Spawner.Instance.AddClassToModelClientRpc(currentClass.Name);
+        }
+
         GenerateDiagramGameObjects();
+
+        foreach (var currentRelation in DiagramRelations)
+        {
+            ClassDiagramModel.Instance.AddRelation(currentRelation);
+        }
+
         ManualLayout();
     }
     public Graph CreateGraph()
@@ -142,8 +161,12 @@ public class ClassDiagram : Singleton<ClassDiagram>
         {
             if (NetworkManager.Singleton.IsServer)
             {
-                Networking.Spawner.Instance.SpawnGameObject(DiagramClasses[i].GameObject);
+                Networking.Spawner.Instance.SpawnClass(DiagramClasses[i].GameObject);
                 Networking.SharedClassDiagram.Instance.InceremntClassCount();
+
+                var networkObject = DiagramClasses[i].GameObject.GetComponent<NetworkObject>();
+
+                Networking.Spawner.Instance.SetClassName(DiagramClasses[i].Name, networkObject.NetworkObjectId);
             }
             else
             {

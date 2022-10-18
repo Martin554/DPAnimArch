@@ -14,7 +14,6 @@ using System;
 
 public class Graph : MonoBehaviour
 {
-
 	public GameObject nodePrefab;
 	public GameObject edgePrefab;
 	public float factor = 0.2f;

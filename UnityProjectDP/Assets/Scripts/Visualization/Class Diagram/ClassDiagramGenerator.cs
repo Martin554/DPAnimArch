@@ -77,14 +77,14 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             {
                 GenerateClassMethods(currentClass, ref tempCDClass);
             }
-            
+
             currentClass.GameObject = graph.AddNode();
 
             Debug.Assert(currentClass.GameObject);
 
             currentClass.SetTMProAttributes();
             currentClass.SetTMProMethods();
-            
+
             currentClass.Top *= -1;
         }
         return classes;

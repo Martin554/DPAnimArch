@@ -83,6 +83,12 @@ public class Class
     public Class()
     {
     }
+
+    public Class(string name)
+    {
+        Name = name;
+    }
+
     public Class(string name, List<Attribute> attributes, List<Method> methods)
     {
         this.Name = name;

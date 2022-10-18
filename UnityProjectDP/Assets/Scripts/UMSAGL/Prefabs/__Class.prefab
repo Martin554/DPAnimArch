@@ -98,9 +98,9 @@ GameObject:
   - component: {fileID: -4254010347267655603}
   - component: {fileID: 5598388419346343867}
   - component: {fileID: -9024585917843682631}
-  - component: {fileID: 3113543745011865735}
+  - component: {fileID: 914531163475409123}
   m_Layer: 5
-  m_Name: Class
+  m_Name: __Class
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -371,7 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3113543745011865735
+--- !u!114 &914531163475409123
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
