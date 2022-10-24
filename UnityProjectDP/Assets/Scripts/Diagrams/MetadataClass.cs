@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 public class MetadataClass
 {
-    internal List<Attribute> Attributes { get; set; }
+    internal List<AttributeModel> Attributes { get; set; }
     internal List<Method> Methods { get; set; }
     public string Name { get; set; }
     public ulong Id { get; set; }

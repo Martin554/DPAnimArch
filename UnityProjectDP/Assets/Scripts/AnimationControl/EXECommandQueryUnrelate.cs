@@ -44,7 +44,7 @@ namespace OALProgramControl
                     return false;
                 }
 
-                CDAttribute Attribute1 = Variable1Class.GetAttributeByName(this.Attribute1Name);
+                AttributeModel Attribute1 = Variable1Class.GetAttributeByName(this.Attribute1Name);
                 if (Attribute1 == null)
                 {
                     return false;
@@ -80,7 +80,7 @@ namespace OALProgramControl
                     return false;
                 }
 
-                CDAttribute Attribute2 = Variable2Class.GetAttributeByName(this.Attribute2Name);
+                AttributeModel Attribute2 = Variable2Class.GetAttributeByName(this.Attribute2Name);
                 if (Attribute2 == null)
                 {
                     return false;

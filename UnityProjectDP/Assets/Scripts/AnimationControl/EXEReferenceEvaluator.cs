@@ -36,7 +36,7 @@ namespace OALProgramControl
             if (Class == null) return false;
 
             //TODO: Typ attributu nemoze byt ReferenceTypeName alebo UnitializedTypeName ci ?
-            CDAttribute Attribute = Class.GetAttributeByName(AttributeName);
+            AttributeModel Attribute = Class.GetAttributeByName(AttributeName);
             if (Attribute == null) return false;
 
             if (!EXETypes.CanBeAssignedToAttribute(AttributeName, Attribute.Type, NewValueType))

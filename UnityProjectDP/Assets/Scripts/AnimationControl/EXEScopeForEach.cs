@@ -64,7 +64,7 @@ namespace OALProgramControl
                     return false;
                 }
 
-                CDAttribute Attribute = VariableClass.GetAttributeByName(this.IterableAttributeName);
+                AttributeModel Attribute = VariableClass.GetAttributeByName(this.IterableAttributeName);
                 if (Attribute == null)
                 {
                     UnityEngine.Debug.Log("e4");//

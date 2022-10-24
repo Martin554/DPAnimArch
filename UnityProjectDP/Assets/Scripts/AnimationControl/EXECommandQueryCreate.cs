@@ -82,7 +82,7 @@ namespace OALProgramControl
                     return false;
                 }
 
-                CDAttribute Attribute = VariableClass.GetAttributeByName(this.ReferencingAttributeName);
+                AttributeModel Attribute = VariableClass.GetAttributeByName(this.ReferencingAttributeName);
                 if (Attribute == null)
                 {
                     return false;

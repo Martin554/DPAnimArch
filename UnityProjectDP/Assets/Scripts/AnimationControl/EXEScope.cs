@@ -488,7 +488,7 @@ namespace OALProgramControl
                 return null;
             }
 
-            CDAttribute Attribute = Class.GetAttributeByName(AccesChain[1]);
+            AttributeModel Attribute = Class.GetAttributeByName(AccesChain[1]);
             if (Attribute == null)
             {
                 return null;

@@ -10,7 +10,7 @@ namespace OALProgramControl
     public class CDClass
     {
         public string Name { get; set; }
-        public List<CDAttribute> Attributes { get; }
+        public List<AttributeModel> Attributes { get; }
         public List<CDMethod> Methods { get;  }
         private List<CDClassInstance> Instances { get; }
         private CDClass _SuperClass { get; set; }
@@ -21,7 +21,7 @@ namespace OALProgramControl
         {
             this.Name = Name;
 
-            this.Attributes = new List<CDAttribute>();
+            this.Attributes = new List<AttributeModel>();
 
             this.Methods = new List<CDMethod>();
 
@@ -31,11 +31,11 @@ namespace OALProgramControl
 
             this.SubClasses = new List<CDClass>();
         }
-        public CDClass(String Name, CDAttribute [] Attributes)
+        public CDClass(String Name, AttributeModel [] Attributes)
         {
             this.Name = Name;
 
-            this.Attributes = new List<CDAttribute>(Attributes);
+            this.Attributes = new List<AttributeModel>(Attributes);
 
             this.Methods = new List<CDMethod>();
 
@@ -49,7 +49,7 @@ namespace OALProgramControl
         {
             this.Name = Name;
 
-            this.Attributes = new List<CDAttribute>();
+            this.Attributes = new List<AttributeModel>();
 
             this.Methods = new List<CDMethod>(Methods);
 
@@ -59,11 +59,11 @@ namespace OALProgramControl
 
             this.SubClasses = new List<CDClass>();
         }
-        public CDClass(String Name, CDAttribute[] Attributes, CDMethod[] Methods)
+        public CDClass(String Name, AttributeModel[] Attributes, CDMethod[] Methods)
         {
             this.Name = Name;
 
-            this.Attributes = new List<CDAttribute>(Attributes);
+            this.Attributes = new List<AttributeModel>(Attributes);
 
             this.Methods = new List<CDMethod>(Methods);
 
@@ -120,10 +120,10 @@ namespace OALProgramControl
             return Result;
         }
 
-        public Boolean AddAttribute(CDAttribute NewAttribute)
+        public Boolean AddAttribute(AttributeModel NewAttribute)
         {
             Boolean Result = true;
-            foreach (CDAttribute Attribute in this.Attributes)
+            foreach (AttributeModel Attribute in this.Attributes)
             {
                 if (Attribute.Name == NewAttribute.Name)
                 {
@@ -237,10 +237,10 @@ namespace OALProgramControl
             return null;
         }
 
-        public CDAttribute GetAttributeByName(String Name)
+        public AttributeModel GetAttributeByName(String Name)
         {
-            CDAttribute Result = null;
-            foreach (CDAttribute Attribute in this.Attributes)
+            AttributeModel Result = null;
+            foreach (AttributeModel Attribute in this.Attributes)
             {
                 if (String.Equals(Attribute.Name, Name))
                 {

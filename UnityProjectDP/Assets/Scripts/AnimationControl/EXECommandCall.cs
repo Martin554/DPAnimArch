@@ -56,7 +56,7 @@ namespace OALProgramControl
 
             if (this.AttributeName != null)
             {
-                CDAttribute Attribute = Class.GetAttributeByName(this.AttributeName);
+                AttributeModel Attribute = Class.GetAttributeByName(this.AttributeName);
 
                 if (Attribute == null)
                 {

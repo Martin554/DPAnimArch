@@ -13,11 +13,11 @@ namespace OALProgramControl
         // Attributes
         public Dictionary<string, string> State { get; }
 
-        public CDClassInstance(long UniqueID, List<CDAttribute> attributes)
+        public CDClassInstance(long UniqueID, List<AttributeModel> attributes)
         {
            this.State = new Dictionary<string, string>();
 
-            foreach (CDAttribute Attribute in attributes)
+            foreach (AttributeModel Attribute in attributes)
             {
                 this.State.Add(Attribute.Name, EXETypes.UnitializedName);
             }

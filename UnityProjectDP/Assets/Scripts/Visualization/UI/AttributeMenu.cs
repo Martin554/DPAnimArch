@@ -11,14 +11,14 @@ public class AttributeMenu : MonoBehaviour
     public TMP_Dropdown dropdown;
     private TMP_Text attributeText;
     private TMP_Text classText;
-    private Attribute attribute;
+    private AttributeModel attribute;
     public Toggle isArray;
-    public void ActivateCreation(TMP_Text classText,TMP_Text attributeText)
+    public void ActivateCreation(TMP_Text classText, TMP_Text attributeText)
     {
         AtrPanel.SetActive(true);
         this.attributeText = attributeText;
         this.classText = classText;
-        attribute = new Attribute();
+        attribute = new AttributeModel();
 
     }
     public void SetName(string atrName)
@@ -44,7 +44,7 @@ public class AttributeMenu : MonoBehaviour
                 attributeText.text += attribute.Name + ": " + attribute.Type + "\n";
             }
         }
-        attribute = new Attribute();
+        attribute = new AttributeModel();
         AtrPanel.SetActive(false);
         inp.text = "";
         isArray.isOn = false;

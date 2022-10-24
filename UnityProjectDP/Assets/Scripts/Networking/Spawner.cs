@@ -42,7 +42,7 @@ namespace Networking
             if (NetworkManager.Singleton.IsHost)
                 return;
             Debug.Log("Add attribute name: " + attributeText);
-            Attribute attribute = new Attribute();
+            AttributeModel attribute = new AttributeModel();
             attribute.Name = attributeText;
             // ClassDiagram.Instance.AddAttribute("Class", attribute);
         }

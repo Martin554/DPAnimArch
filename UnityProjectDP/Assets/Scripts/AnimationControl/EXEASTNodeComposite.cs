@@ -251,7 +251,7 @@ namespace OALProgramControl
                     {
                         return false;
                     }
-                    CDAttribute Attribute = Class.GetAttributeByName(this.Operands[1].GetNodeValue());
+                    AttributeModel Attribute = Class.GetAttributeByName(this.Operands[1].GetNodeValue());
                     if (Attribute == null)
                     {
                         return false;

@@ -114,7 +114,7 @@ public static class XMIParser
                     if (node.Name == "attributes")
                     {
                         XmlNodeList attributes = node.ChildNodes;
-                        XMIClass.Attributes = new List<Attribute>();
+                        XMIClass.Attributes = new List<AttributeModel>();
 
                         foreach (XmlNode attribute in attributes)
                         {
@@ -133,7 +133,7 @@ public static class XMIParser
                                 }
                             }
 
-                            Attribute attr = new Attribute(id, name, type);
+                            AttributeModel attr = new AttributeModel(id, name, type);
                             XMIClass.Attributes.Add(attr);
                         }
                     }

@@ -197,7 +197,6 @@ public class ClassDiagram : Singleton<ClassDiagram>
                     GameObjectRelations.Add(rel.OALName, edge);
                     if (edge.gameObject.transform.childCount > 0)
                         StartCoroutine(QuickFix(edge.transform.GetChild(0).gameObject));
-                    Networking.Spawner.Instance.SpawnGameObject(edge);
                 }
                 else
                     Debug.Log("Cant find specified Edge in Dictionary");
@@ -266,7 +265,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         }
         return true;
     }
-    public Attribute FindAttributeByName(String searchedClass, String attribute)
+    public AttributeModel FindAttributeByName(String searchedClass, String attribute)
     {
         Class c = FindClassByName(searchedClass);
         if (c == null)
@@ -275,7 +274,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         if (c.Attributes == null)
             return null;
         
-        foreach (Attribute atr in c.Attributes)
+        foreach (AttributeModel atr in c.Attributes)
         {
             if (atr.Name.Equals(attribute))
                 return atr;
@@ -283,7 +282,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         Debug.Log("Method " + attribute + "not found");
         return null;
     }
-    public bool AddAttribute(String targetClass, Attribute atr)
+    public bool AddAttribute(String targetClass, AttributeModel atr)
     {
         Class c = FindClassByName(targetClass);
         if (c == null)
@@ -294,7 +293,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
             {
                 if (c.Attributes == null)
                 {
-                    c.Attributes = new List<Attribute>();
+                    c.Attributes = new List<AttributeModel>();
                 }
                 c.Attributes.Add(atr);
             }

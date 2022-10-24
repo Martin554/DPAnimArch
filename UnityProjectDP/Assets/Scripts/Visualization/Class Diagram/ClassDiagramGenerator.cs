@@ -29,13 +29,13 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             }
         }
         currentClass.Name = currentName;
-        currentClass.Attributes = new List<Attribute>();
+        currentClass.Attributes = new List<AttributeModel>();
         currentClass.Methods = new List<Method>();
         currentClass.GameObject = graph.AddNode();
         return currentClass;
     }
 
-    public void SetClassAttribute(ref Class currentClass, Attribute attribute)
+    public void SetClassAttribute(ref Class currentClass, AttributeModel attribute)
     {
         
     }
@@ -136,13 +136,13 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
     }
     private void GenerateClassAttributes(Class currentClass, ref CDClass cdcClass)
     {
-        foreach (Attribute CurrentAttribute in currentClass.Attributes)
+        foreach (AttributeModel CurrentAttribute in currentClass.Attributes)
         {
             CurrentAttribute.Name = CurrentAttribute.Name.Replace(" ", "_");
             String AttributeType = EXETypes.ConvertEATypeName(CurrentAttribute.Type);
             if (AttributeType == null)
                 continue;
-            cdcClass.AddAttribute(new CDAttribute(CurrentAttribute.Name, EXETypes.ConvertEATypeName(AttributeType)));
+            cdcClass.AddAttribute(new OALProgramControl.AttributeModel(CurrentAttribute.Name, EXETypes.ConvertEATypeName(AttributeType)));
         }
     }
     private void GenerateClassMethods(Class currentClass, ref CDClass cdcClass)
