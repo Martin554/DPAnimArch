@@ -93,7 +93,7 @@ namespace Networking
             if (NetworkManager.Singleton.IsServer)
                 return;
             Debug.Log("Client: Add class with id: " + id);
-            ClassDiagramModel.Instance.AddElement(id);
+            ClassDiagramModel.Instance.AddClass(id);
         }
 
         [ServerRpc]
@@ -102,20 +102,20 @@ namespace Networking
             if (NetworkManager.Singleton.IsClient)
                 return;
             Debug.Log("Server: Add class with id: " + id);
-            ClassDiagramModel.Instance.AddElement(id);
+            ClassDiagramModel.Instance.AddClass(id);
         }
 
         // Spawning is only at server side, not at client.
         public ulong SpawnGameObject(GameObject go)
         {
-            Debug.Assert(!NetworkManager.Singleton.IsServer);
+            Debug.Assert(NetworkManager.Singleton.IsServer);
             var no = go.GetComponent<NetworkObject>();
             no.Spawn();
             return no.NetworkObjectId;
         }
         public void SpawnClass(GameObject go)
         {
-            Debug.Assert(!NetworkManager.Singleton.IsServer);
+            Debug.Assert(NetworkManager.Singleton.IsServer);
             var id = SpawnGameObject(go);
             AddClassToModelClientRpc((ulong)id);
         }

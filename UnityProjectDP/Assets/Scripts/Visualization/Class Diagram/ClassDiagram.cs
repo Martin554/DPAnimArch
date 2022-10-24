@@ -36,7 +36,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         DiagramClasses = new List<Class>();
         DiagramRelations = new List<Relation>();
         ResetDiagram();
-        ClassDiagramModel.Instance.ResetDiagram();
+        ClassDiagramModel.Instance.ClearDiagram();
     }
     private void Start()
     {
@@ -80,7 +80,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         ResetRelations();
         ResetGraph();
 
-        ClassDiagramModel.Instance.ResetDiagram();
+        ClassDiagramModel.Instance.ClearDiagram();
 
         OALProgram.Instance.ExecutionSpace.ClassPool.Clear();
         OALProgram.Instance.ExecutionSpace= new CDClassPool();
@@ -103,16 +103,17 @@ public class ClassDiagram : Singleton<ClassDiagram>
 
         foreach(var currentClass in DiagramClasses)
         {
-            ClassDiagramModel.Instance.AddElement(currentClass.Name);
+            ClassDiagramModel.Instance.AddClass(currentClass.Name);
             // Networking.Spawner.Instance.AddClassToModelClientRpc(currentClass.Name);
         }
 
-        GenerateDiagramGameObjects();
 
         foreach (var currentRelation in DiagramRelations)
         {
             ClassDiagramModel.Instance.AddRelation(currentRelation);
         }
+
+        GenerateDiagramGameObjects();
 
         ManualLayout();
     }
@@ -178,26 +179,29 @@ public class ClassDiagram : Singleton<ClassDiagram>
     // Generates GameObjects of relations from member DiagramClasses.
     protected void GenerateRelationGameObjects()
     {
-        foreach (Relation rel in DiagramRelations)
+        if (NetworkManager.Singleton.IsServer)
         {
-            GameObject prefab = rel.PrefabType;
-            if (prefab == null)
+            foreach (Relation rel in DiagramRelations)
             {
-                prefab = associationNonePrefab;
-                Debug.Log("Unknown prefab");
+                GameObject prefab = rel.PrefabType;
+                if (prefab == null)
+                {
+                    prefab = associationNonePrefab;
+                    Debug.Log("Unknown prefab");
+                }
+                var fromClass = diagramClasses.Find(item => item.Name == rel.FromClass).GameObject;
+                var toClass = diagramClasses.Find(item => item.Name == rel.ToClass).GameObject;
+                if (fromClass && toClass)
+                {
+                    GameObject edge = graph.AddEdge(fromClass, toClass, prefab);
+                    GameObjectRelations.Add(rel.OALName, edge);
+                    if (edge.gameObject.transform.childCount > 0)
+                        StartCoroutine(QuickFix(edge.transform.GetChild(0).gameObject));
+                    Networking.Spawner.Instance.SpawnGameObject(edge);
+                }
+                else
+                    Debug.Log("Cant find specified Edge in Dictionary");
             }
-            GameObject g;
-            var fromClass = diagramClasses.Find(item => item.Name == rel.FromClass).GameObject;
-            var toClass = diagramClasses.Find(item => item.Name == rel.ToClass).GameObject;
-            if (fromClass && toClass)
-            {
-                GameObject edge = graph.AddEdge(fromClass, toClass, prefab);
-                GameObjectRelations.Add(rel.OALName, edge);
-                if (edge.gameObject.transform.childCount > 0)
-                    StartCoroutine(QuickFix(edge.transform.GetChild(0).gameObject));
-            }
-            else
-                Debug.Log("Cant find specified Edge in Dictionary");
         }
     }
     public Class FindClassByName(String searchedClass)

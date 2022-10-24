@@ -14,7 +14,7 @@ public class ClassDiagramModel : Singleton<ClassDiagramModel>
         relations = new List<Relation>();
     }
 
-    public virtual void ResetDiagram()
+    public virtual void ClearDiagram()
     {
         classes.Clear();
         relations.Clear();
@@ -28,19 +28,18 @@ public class ClassDiagramModel : Singleton<ClassDiagramModel>
             metadataClass.Name = name;
         }
     }
-    public void AddElement(MetadataClass element)
+    public void AddClass(MetadataClass element)
     {
         classes.Add(element);
     }
-    public void AddElement(ulong id)
+    public void AddClass(ulong id)
     {
         classes.Add(new MetadataClass(id));
     }
-    public void AddElement(string name)
+    public void AddClass(string name)
     {
         classes.Add(new MetadataClass(name));
     }
-
     public void AddRelation(Relation relation)
     {
         relations.Add(relation);
