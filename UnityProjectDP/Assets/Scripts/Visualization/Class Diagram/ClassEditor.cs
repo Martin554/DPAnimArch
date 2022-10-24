@@ -23,25 +23,26 @@ public class ClassEditor : Singleton<ClassEditor>
     }
     public void CreateNode()
     {
-        if (graph == null)
-        {
-            InitializeCreation();
-        }
-        if (NetworkManager.Singleton.IsServer)
-        {
-            var currentClass = ClassDiagramGenerator.Instance.GenerateClass(ref graph);
-            RectTransform rc = currentClass.GameObject.GetComponent<RectTransform>();
-            rc.position = new Vector3(100f, 200f, 1);
+        //if (graph == null)
+        //{
+        //    InitializeCreation();
+        //}
+        //if (NetworkManager.Singleton.IsServer)
+        //{
+        //    var currentClass = ClassDiagramGenerator.Instance.GenerateClass(ref graph);
+        //    // var currentClassView = 
+        //    // RectTransform rc = currentClass.GameObject.GetComponent<RectTransform>();
+        //    rc.position = new Vector3(100f, 200f, 1);
 
-            ClassDiagram.Instance.diagramClasses.Add(currentClass);
-            Networking.Spawner.Instance.SpawnClass(currentClass.GameObject);
-            // Networking.Spawner.Instance.AddClassToModelClientRpc(currentClass.Name);
-            Id++;
-        }
-        else
-        {
-            Networking.Spawner.Instance.SpawnClassServerRpc();
-        }
+        //    ClassDiagram.Instance.diagramClasses.Add(currentClass);
+        //    Networking.Spawner.Instance.SpawnClass(currentClass.GameObject);
+        //    // Networking.Spawner.Instance.AddClassToModelClientRpc(currentClass.Name);
+        //    Id++;
+        //}
+        //else
+        //{
+        //    Networking.Spawner.Instance.SpawnClassServerRpc();
+        //}
     }
 
     public void SelectNode(GameObject selected)

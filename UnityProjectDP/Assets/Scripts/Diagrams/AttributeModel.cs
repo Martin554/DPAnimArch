@@ -14,7 +14,6 @@ public class AttributeModel
         this.Name = Name;
         this.Type = Type;
     }
-
     public AttributeModel()
     {
     }

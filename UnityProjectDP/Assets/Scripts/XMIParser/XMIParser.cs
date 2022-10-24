@@ -240,7 +240,9 @@ public static class XMIParser
                     foreach (string word in words)
                     {
                         //aby som nedostal IndexOutOfRangeException... 
-                        if (String.IsNullOrEmpty(word)) break;
+                        if (String.IsNullOrEmpty(word))
+                            break;
+
                         string[] values = word.Split('=');
                         switch (values[0])
                         {

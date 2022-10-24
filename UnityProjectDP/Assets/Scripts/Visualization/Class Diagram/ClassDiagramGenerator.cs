@@ -31,13 +31,7 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
         currentClass.Name = currentName;
         currentClass.Attributes = new List<AttributeModel>();
         currentClass.Methods = new List<Method>();
-        currentClass.GameObject = graph.AddNode();
         return currentClass;
-    }
-
-    public void SetClassAttribute(ref Class currentClass, AttributeModel attribute)
-    {
-        
     }
     public List<Class> GenerateClassesData(ref Graph graph)
     {
@@ -77,13 +71,6 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             {
                 GenerateClassMethods(currentClass, ref tempCDClass);
             }
-
-            currentClass.GameObject = graph.AddNode();
-
-            Debug.Assert(currentClass.GameObject);
-
-            currentClass.SetTMProAttributes();
-            currentClass.SetTMProMethods();
 
             currentClass.Top *= -1;
         }
@@ -142,7 +129,7 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             String AttributeType = EXETypes.ConvertEATypeName(CurrentAttribute.Type);
             if (AttributeType == null)
                 continue;
-            cdcClass.AddAttribute(new OALProgramControl.AttributeModel(CurrentAttribute.Name, EXETypes.ConvertEATypeName(AttributeType)));
+            cdcClass.AddAttribute(new AttributeModel(CurrentAttribute.Name, EXETypes.ConvertEATypeName(AttributeType)));
         }
     }
     private void GenerateClassMethods(Class currentClass, ref CDClass cdcClass)

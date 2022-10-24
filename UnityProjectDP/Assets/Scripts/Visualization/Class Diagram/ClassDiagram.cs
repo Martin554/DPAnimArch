@@ -23,10 +23,11 @@ public class ClassDiagram : Singleton<ClassDiagram>
     private List<Class> DiagramClasses; //List of all classes from XMI
     private List<Relation> DiagramRelations; //List of all relations from XMI
     private Dictionary<string, GameObject> GameObjectRelations; // Dictionary of all objects created from list classes
-
+    private List<ClassView> ClassViews;
     // private DiagramModel<MetadataClass> classDiagram;
 
     public List<Class> diagramClasses => DiagramClasses;
+    public List<ClassView> classViews => ClassViews;
 
     //Awake is called before the first frame and before Start()
     private void Awake()
@@ -35,6 +36,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         GameObjectRelations = new Dictionary<string, GameObject>();
         DiagramClasses = new List<Class>();
         DiagramRelations = new List<Relation>();
+        ClassViews = new List<ClassView>();
         ResetDiagram();
         ClassDiagramModel.Instance.ClearDiagram();
     }
@@ -43,12 +45,13 @@ public class ClassDiagram : Singleton<ClassDiagram>
     }
     protected void ResetClasses()
     {
-        if (diagramClasses != null)
+        if (ClassViews != null)
         {
-            foreach (Class currentClass in diagramClasses)
+            foreach (ClassView currentClass in ClassViews)
             {
                 Destroy(currentClass.GameObject);
             }
+            ClassViews.Clear();
             diagramClasses.Clear();
         }
     }
@@ -104,7 +107,31 @@ public class ClassDiagram : Singleton<ClassDiagram>
         foreach(var currentClass in DiagramClasses)
         {
             ClassDiagramModel.Instance.AddClass(currentClass.Name);
-            // Networking.Spawner.Instance.AddClassToModelClientRpc(currentClass.Name);
+            if (NetworkManager.Singleton.IsServer)
+            {
+                var classGameObject = graph.AddNode();
+                Networking.Spawner.Instance.SpawnClass(classGameObject);
+                var networkObject = classGameObject.GetComponent<NetworkObject>();
+                var classNetworkId = networkObject.NetworkObjectId;
+
+                var classView = new ClassView(classGameObject, classNetworkId);
+                classView.Top = currentClass.Top;
+                classView.Bottom = currentClass.Bottom;
+                classView.Right = currentClass.Right;
+                classView.Left = currentClass.Left;
+                classView.SetClassName(currentClass.Name);
+                classView.SetTMProAttributes(currentClass.Attributes);
+                classView.SetTMProMethods(currentClass.Methods);
+                ClassDiagram.Instance.ClassViews.Add(classView);
+
+                currentClass.Id = classNetworkId;
+                Networking.Spawner.Instance.SetClassName(currentClass.Name, classNetworkId);
+            }
+            else
+            {
+                Networking.Spawner.Instance.SpawnClassServerRpc();
+                Networking.SharedClassDiagram.Instance.IncrementClassCountServerRpc();
+            }
         }
 
 
@@ -142,7 +169,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
     //Set layout as close as possible to EA layout
     public void ManualLayout()
     {
-        foreach (Class currentClass in DiagramClasses)
+        foreach (ClassView currentClass in ClassViews)
         {
             currentClass.GameObject.GetComponent<RectTransform>().position = new Vector3(currentClass.Left*1.25f, currentClass.Top*1.25f);
         }
@@ -150,32 +177,10 @@ public class ClassDiagram : Singleton<ClassDiagram>
     //Create GameObjects from the parsed data sotred in list of Classes and Relations
     protected void GenerateDiagramGameObjects()
     {
-        GenerateClassesGameObjects();
         GenerateRelationGameObjects();
     }
 
 
-    // Generates GameObjects of classes from member DiagramClasses.
-    protected void GenerateClassesGameObjects()
-    {
-        for (int i = 0; i < DiagramClasses.Count; i++)
-        {
-            if (NetworkManager.Singleton.IsServer)
-            {
-                Networking.Spawner.Instance.SpawnClass(DiagramClasses[i].GameObject);
-                Networking.SharedClassDiagram.Instance.InceremntClassCount();
-
-                var networkObject = DiagramClasses[i].GameObject.GetComponent<NetworkObject>();
-
-                Networking.Spawner.Instance.SetClassName(DiagramClasses[i].Name, networkObject.NetworkObjectId);
-            }
-            else
-            {
-                Networking.Spawner.Instance.SpawnClassServerRpc();
-                Networking.SharedClassDiagram.Instance.IncrementClassCountServerRpc();
-            }
-        }
-    }
     // Generates GameObjects of relations from member DiagramClasses.
     protected void GenerateRelationGameObjects()
     {
@@ -189,8 +194,12 @@ public class ClassDiagram : Singleton<ClassDiagram>
                     prefab = associationNonePrefab;
                     Debug.Log("Unknown prefab");
                 }
-                var fromClass = diagramClasses.Find(item => item.Name == rel.FromClass).GameObject;
-                var toClass = diagramClasses.Find(item => item.Name == rel.ToClass).GameObject;
+                var fromClassId = diagramClasses.Find(item => item.Name == rel.FromClass).Id;
+                var toClassId = diagramClasses.Find(item => item.Name == rel.ToClass).Id;
+
+                var fromClass = ClassViews.Find(classView => classView.Id == fromClassId).GameObject;
+                var toClass = ClassViews.Find(classView => classView.Id == toClassId).GameObject;
+
                 if (fromClass && toClass)
                 {
                     GameObject edge = graph.AddEdge(fromClass, toClass, prefab);
@@ -306,9 +315,10 @@ public class ClassDiagram : Singleton<ClassDiagram>
         }
         return true;
     }
-    public GameObject FindNode(String name)
+    public GameObject FindNode(string name)
     {
-        return diagramClasses.Find(item => item.Name == name).GameObject;
+        var classId = diagramClasses.Find(item => item.Name == name);
+        return ClassViews.Find(item => item.Id == classId.Id).GameObject;
     }
     public GameObject FindEdge(string classA, string classB)
     {
