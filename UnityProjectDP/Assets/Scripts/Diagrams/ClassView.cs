@@ -31,30 +31,39 @@ public class ClassView
 
     public void SetClassName(string className)
     {
-        var background = gameObject.transform.Find("Background");
-        var header = background.Find("Header");
-        header.GetComponent<TextMeshProUGUI>().text = className;
+        gameObject.transform
+            .Find("Background")
+            .Find("Header")
+            .GetComponent<TextMeshProUGUI>()
+            .text = className;
+    }
+    public string attributesToString(List<AttributeModel> attributes)
+    {
+        string result = "";
+        if (attributes != null)
+        {
+            string textualAttributes = "";
+            foreach (AttributeModel attribute in attributes)
+            {
+                textualAttributes += attribute.Name + ": " + attribute.Type + "\n";
+            }
+            result = textualAttributes;
+        }
+        return result;
     }
     public void SetTMProAttributes(List<AttributeModel> attributes)
     {
         if (gameObject)
         {
-            var transformBackground = gameObject.transform.Find("Background");
-            var transformAttributes = transformBackground.Find("Attributes");
-
-            if (attributes != null)
-            {
-                string textualAttributes = "";
-                foreach (AttributeModel attribute in attributes)
-                {
-                    textualAttributes += attribute.Name + ": " + attribute.Type + "\n";
-                }
-                transformAttributes.GetComponent<TextMeshProUGUI>().text = textualAttributes;
-            }
+            gameObject.transform
+                .Find("Background")
+                .Find("Attributes")
+                .GetComponent<TextMeshProUGUI>()
+                .text = attributesToString(attributes);
         }
     }
 
-    public string methodListToString(List<Method> methods)
+    public string methodsToString(List<Method> methods)
     {
         string result = "";
         if (methods != null)
@@ -82,20 +91,11 @@ public class ClassView
     {
         if (methods != null)
         {
-            var transformBackground = gameObject.transform.Find("Background");
-            var transformMethods = transformBackground.Find("Methods");
-
-            transformMethods.GetComponent<TextMeshProUGUI>().text = methodListToString(methods);
-        }
-    }
-    public void SetTMProMethods(string methods)
-    {
-        if (methods != null)
-        {
-            var transformBackground = gameObject.transform.Find("Background");
-            var transformMethods = transformBackground.Find("Methods");
-
-            transformMethods.GetComponent<TextMeshProUGUI>().text = methods;
+            gameObject.transform
+                .Find("Background")
+                .Find("Methods")
+                .GetComponent<TextMeshProUGUI>()
+                .text = methodsToString(methods);
         }
     }
 }

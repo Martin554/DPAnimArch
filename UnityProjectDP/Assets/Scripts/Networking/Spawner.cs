@@ -36,35 +36,24 @@ namespace Networking
             ClassEditor.Instance.InitializeCreation();
         }
 
-        [ClientRpc]
-        public void SetAttributeClientRpc(string attributeText)
-        {
-            if (NetworkManager.Singleton.IsHost)
-                return;
-            Debug.Log("Add attribute name: " + attributeText);
-            AttributeModel attribute = new AttributeModel();
-            attribute.Name = attributeText;
-            // ClassDiagram.Instance.AddAttribute("Class", attribute);
-        }
-        public void SetClassName(string className, ulong id)
+        public void SetClassProperty(string propertyName, string property, ulong id)
         {
             if (NetworkManager.Singleton.IsServer)
             {
-                SetClassNameClientRpc(className, id);
+                SetClassPropertyClientRpc(propertyName, property, id);
             }
             else if (NetworkManager.Singleton.IsClient)
             {
-                SetClassNameServerRpc(className, id);
+                SetClassPropertyServerRpc(propertyName, property, id);
             }
         }
-
         [ClientRpc]
-        public void SetClassNameClientRpc(string className, ulong id)
+        public void SetClassPropertyClientRpc(string propertyName, string property, ulong id)
         {
             if (NetworkManager.Singleton.IsServer)
                 return;
-            Debug.Log("Client: Setting class name. Id: " + id + "name: " + className);
-            ClassDiagramModel.Instance.SetClassName(className, id);
+            Debug.Log("Client: Setting class " + propertyName + "id: " + id + ", " + property);
+
             var no = NetworkManager.FindObjectsOfType<NetworkObject>();
             foreach (var obj in no)
             {
@@ -72,59 +61,33 @@ namespace Networking
                 if (networkObjectId == id)
                 {
                     var background = obj.transform.Find("Background");
-                    var header = background.Find("Header");
-                    header.GetComponent<TextMeshProUGUI>().text = className;
+                    var propertyComponent = background.Find(propertyName);
+                    propertyComponent.GetComponent<TextMeshProUGUI>().text = property;
                 }
             }
-        }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void SetClassNameServerRpc(string className, ulong id)
-        {
-            if (NetworkManager.Singleton.IsClient)
-                return;
-            ClassDiagramModel.Instance.SetClassName(className, id);
-        }
-
-        public void SetClassMethods(string methods, ulong id)
-        {
-            if (NetworkManager.Singleton.IsServer)
+            switch (propertyName)
             {
-                SetClassMethodsClientRpc(methods, id);
-            }
-            else if (NetworkManager.Singleton.IsClient)
-            {
-                SetClassMethodsServerRpc(methods, id);
-            }
-        }
-
-        [ClientRpc]
-        public void SetClassMethodsClientRpc(string methods, ulong id)
-        {
-            if (NetworkManager.Singleton.IsServer)
-                return;
-
-            Debug.Log("Client: Setting class methods. Id: " + id + "methods: " + methods);
-            // ClassDiagramModel.Instance.SetClassMethods(methods, id);
-            var no = NetworkManager.FindObjectsOfType<NetworkObject>();
-            foreach (var obj in no)
-            {
-                var networkObjectId = obj.GetComponent<NetworkObject>().NetworkObjectId;
-                if (networkObjectId == id)
+                case "Name":
                 {
-                    var transformBackground = obj.transform.Find("Background");
-                    var transformMethods = transformBackground.Find("Methods");
-                    transformMethods.GetComponent<TextMeshProUGUI>().text = methods;
+                    ClassDiagramModel.Instance.SetClassName(property, id);
+                    break;
+                }
+                case "Attribute":
+                {
+                    break;
+                }
+                case "Method":
+                {
+                    break;
                 }
             }
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SetClassMethodsServerRpc(string methods, ulong id)
+        public void SetClassPropertyServerRpc(string propertyName, string property, ulong id)
         {
-            if (NetworkManager.Singleton.IsClient)
-                return;
-            // ClassDiagramModel.Instance.SetClassMethods(methods, id);
+
         }
 
         // Client Rpc is executed only at client.

@@ -128,10 +128,12 @@ public class ClassDiagram : Singleton<ClassDiagram>
 
                 currentClass.Id = classNetworkId;
 
-                var stringMethods = classView.methodListToString(currentClass.Methods);
+                var stringMethods = classView.methodsToString(currentClass.Methods);
+                var stringAttributes = classView.attributesToString(currentClass.Attributes);
 
-                Networking.Spawner.Instance.SetClassName(currentClass.Name, classNetworkId);
-                Networking.Spawner.Instance.SetClassMethods(stringMethods, classNetworkId);
+                Networking.Spawner.Instance.SetClassProperty("Header", currentClass.Name, classNetworkId);
+                Networking.Spawner.Instance.SetClassProperty("Methods", stringMethods, classNetworkId);
+                Networking.Spawner.Instance.SetClassProperty("Attributes", stringAttributes, classNetworkId);
             }
             else
             {
@@ -315,10 +317,10 @@ public class ClassDiagram : Singleton<ClassDiagram>
             else return false;
 
         }
-        if (NetworkManager.Singleton.IsServer)
-        {
-            Networking.Spawner.Instance.SetAttributeClientRpc(atr.Name);
-        }
+        //if (NetworkManager.Singleton.IsServer)
+        //{
+        //    Networking.Spawner.Instance.SetAttributeClientRpc(atr.Name);
+        //}
         return true;
     }
     public GameObject FindNode(string name)
