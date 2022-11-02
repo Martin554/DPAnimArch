@@ -90,6 +90,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
         OALProgram.Instance.RelationshipSpace = new CDRelationshipPool();
         AnimationData.Instance.ClearData();
     }
+
     public void LoadDiagram()
     {
         CreateGraph();
@@ -121,11 +122,16 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 classView.Left = currentClass.Left;
                 classView.SetClassName(currentClass.Name);
                 classView.SetTMProAttributes(currentClass.Attributes);
+
                 classView.SetTMProMethods(currentClass.Methods);
                 ClassDiagram.Instance.ClassViews.Add(classView);
 
                 currentClass.Id = classNetworkId;
+
+                var stringMethods = classView.methodListToString(currentClass.Methods);
+
                 Networking.Spawner.Instance.SetClassName(currentClass.Name, classNetworkId);
+                Networking.Spawner.Instance.SetClassMethods(stringMethods, classNetworkId);
             }
             else
             {

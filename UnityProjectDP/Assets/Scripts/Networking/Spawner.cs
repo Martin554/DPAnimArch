@@ -86,6 +86,47 @@ namespace Networking
             ClassDiagramModel.Instance.SetClassName(className, id);
         }
 
+        public void SetClassMethods(string methods, ulong id)
+        {
+            if (NetworkManager.Singleton.IsServer)
+            {
+                SetClassMethodsClientRpc(methods, id);
+            }
+            else if (NetworkManager.Singleton.IsClient)
+            {
+                SetClassMethodsServerRpc(methods, id);
+            }
+        }
+
+        [ClientRpc]
+        public void SetClassMethodsClientRpc(string methods, ulong id)
+        {
+            if (NetworkManager.Singleton.IsServer)
+                return;
+
+            Debug.Log("Client: Setting class methods. Id: " + id + "methods: " + methods);
+            // ClassDiagramModel.Instance.SetClassMethods(methods, id);
+            var no = NetworkManager.FindObjectsOfType<NetworkObject>();
+            foreach (var obj in no)
+            {
+                var networkObjectId = obj.GetComponent<NetworkObject>().NetworkObjectId;
+                if (networkObjectId == id)
+                {
+                    var transformBackground = obj.transform.Find("Background");
+                    var transformMethods = transformBackground.Find("Methods");
+                    transformMethods.GetComponent<TextMeshProUGUI>().text = methods;
+                }
+            }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SetClassMethodsServerRpc(string methods, ulong id)
+        {
+            if (NetworkManager.Singleton.IsClient)
+                return;
+            // ClassDiagramModel.Instance.SetClassMethods(methods, id);
+        }
+
         // Client Rpc is executed only at client.
         [ClientRpc]
         public void AddClassToModelClientRpc(ulong id)

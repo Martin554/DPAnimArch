@@ -28,6 +28,14 @@ public class ClassDiagramModel : Singleton<ClassDiagramModel>
             metadataClass.Name = name;
         }
     }
+    public void SetClassMethods(List<Method> methods, ulong id)
+    {
+        var metadataClass = classes.Find(x => x.Id == id);
+        if (metadataClass != null)
+        {
+            metadataClass.Methods = methods;
+        }
+    }
     public void AddClass(MetadataClass element)
     {
         classes.Add(element);

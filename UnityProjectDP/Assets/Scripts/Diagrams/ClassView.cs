@@ -53,13 +53,12 @@ public class ClassView
             }
         }
     }
-    public void SetTMProMethods(List<Method> methods)
+
+    public string methodListToString(List<Method> methods)
     {
+        string result = "";
         if (methods != null)
         {
-            var transformBackground = gameObject.transform.Find("Background");
-            var transformMethods = transformBackground.Find("Methods");
-
             foreach (Method method in methods)
             {
                 string arguments = "(";
@@ -74,8 +73,29 @@ public class ClassView
                     }
                 }
                 arguments += ")";
-                transformMethods.GetComponent<TextMeshProUGUI>().text += method.Name + arguments + " :" + method.ReturnValue + "\n";
+                result += method.Name + arguments + " :" + method.ReturnValue + "\n";
             }
+        }
+        return result;
+    }
+    public void SetTMProMethods(List<Method> methods)
+    {
+        if (methods != null)
+        {
+            var transformBackground = gameObject.transform.Find("Background");
+            var transformMethods = transformBackground.Find("Methods");
+
+            transformMethods.GetComponent<TextMeshProUGUI>().text = methodListToString(methods);
+        }
+    }
+    public void SetTMProMethods(string methods)
+    {
+        if (methods != null)
+        {
+            var transformBackground = gameObject.transform.Find("Background");
+            var transformMethods = transformBackground.Find("Methods");
+
+            transformMethods.GetComponent<TextMeshProUGUI>().text = methods;
         }
     }
 }
