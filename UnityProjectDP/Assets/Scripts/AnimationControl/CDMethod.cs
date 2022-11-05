@@ -42,7 +42,7 @@ namespace OALProgramControl
             this.Parameters = new List<CDParameter>();
             this.ExecutableCode = null;
         }
-        public void IncementCallCount()
+        public void IncrementCallCount()
         {
             this.CallCountInOALProgram++;
         }

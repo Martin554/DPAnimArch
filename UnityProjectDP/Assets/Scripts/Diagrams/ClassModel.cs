@@ -4,23 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class MetadataClass
+public class ClassModel
 {
     internal List<AttributeModel> Attributes { get; set; }
     internal List<Method> Methods { get; set; }
     public string Name { get; set; }
     public ulong Id { get; set; }
 
-    public MetadataClass()
+    public ClassModel()
     {
     }
 
-    public MetadataClass(ulong id)
+    public ClassModel(ulong id)
     {
         Id = id;
     }
 
-    public MetadataClass(string name)
+    public ClassModel(string name)
     {
         Name = name;
     }

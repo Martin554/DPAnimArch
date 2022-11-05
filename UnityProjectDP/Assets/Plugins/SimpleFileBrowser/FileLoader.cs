@@ -75,7 +75,7 @@ public class FileLoader : MonoBehaviour
                 Debug.Log(FileBrowser.Result);
                 Debug.Log(fileName);
                 AnimationData.Instance.SetDiagramPath(FileBrowser.Result);
-                ClassDiagram.Instance.LoadDiagram();
+                ClassDiagramView.Instance.LoadDiagram();
                 
             }
         

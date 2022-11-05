@@ -32,7 +32,7 @@ public class MethodMenu : MonoBehaviour
     {
         SetName(inp.text);
         SetType(dropdown.options[dropdown.value].text);
-        if (ClassDiagram.Instance.AddMethod(classTxt.text, mtd))
+        if (ClassDiagramView.Instance.AddMethod(classTxt.text, mtd))
         {
             mtdTxt.text += mtd.Name + "() :" + mtd.ReturnValue + "\n";
         }

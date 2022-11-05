@@ -18,7 +18,7 @@ public class ClassEditor : Singleton<ClassEditor>
     public MethodMenu mtdMenu;
     public void InitializeCreation()
     {
-        graph = ClassDiagram.Instance.CreateGraph();
+        graph = ClassDiagramView.Instance.CreateGraph();
         active = true;
     }
     public void CreateNode()
@@ -34,7 +34,7 @@ public class ClassEditor : Singleton<ClassEditor>
         //    // RectTransform rc = currentClass.GameObject.GetComponent<RectTransform>();
         //    rc.position = new Vector3(100f, 200f, 1);
 
-        //    ClassDiagram.Instance.diagramClasses.Add(currentClass);
+        //    ClassDiagramView.Instance.diagramClasses.Add(currentClass);
         //    Networking.Spawner.Instance.SpawnClass(currentClass.GameObject);
         //    // Networking.Spawner.Instance.AddClassToModelClientRpc(currentClass.Name);
         //    Id++;
@@ -70,7 +70,7 @@ public class ClassEditor : Singleton<ClassEditor>
     {
         if(node1 != null && node2 != null)
         {
-            ClassDiagram.Instance.CreateRelationEdge(node1, node2);
+            ClassDiagramView.Instance.CreateRelationEdge(node1, node2);
             node1 = null;
             node2 = null;
             graph.UpdateGraph();

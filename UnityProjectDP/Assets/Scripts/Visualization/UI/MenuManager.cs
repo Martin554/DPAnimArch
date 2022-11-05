@@ -163,7 +163,7 @@ public class MenuManager : Singleton<MenuManager>
         {
             button.SetActive(false);
         } 
-        Class selectedClass = ClassDiagram.Instance.FindClassByName(name);
+        Class selectedClass = ClassDiagramView.Instance.FindClassByName(name);
         PanelInteractiveIntro.SetActive(false);
         ClassNameTxt.text = name;
         PanelMethod.SetActive(true);
@@ -198,7 +198,7 @@ public class MenuManager : Singleton<MenuManager>
                 }
                 else
                 {
-                    if (i < methodButtons.Count && ClassDiagram.Instance.FindEdge(interactiveData.fromClass, name) != null)
+                    if (i < methodButtons.Count && ClassDiagramView.Instance.FindEdge(interactiveData.fromClass, name) != null)
                     {
                         methodButtons[i].SetActive(true);
                         methodButtons[i].GetComponentInChildren<TMP_Text>().text = m.Name + "()";
@@ -414,7 +414,7 @@ public class MenuManager : Singleton<MenuManager>
         {
             button.gameObject.SetActive(false);
         }
-        Class selectedClass = ClassDiagram.Instance.FindClassByName(name);
+        Class selectedClass = ClassDiagramView.Instance.FindClassByName(name);
         animMethods = AnimationData.Instance.selectedAnim.GetMethodsByClassName(name);
         int i = 0;
         if (animMethods != null)

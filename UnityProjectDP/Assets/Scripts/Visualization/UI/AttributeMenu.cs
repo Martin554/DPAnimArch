@@ -33,7 +33,7 @@ public class AttributeMenu : MonoBehaviour
     {
         SetName(inp.text);
         SetType(dropdown.options[dropdown.value].text);
-        if (ClassDiagram.Instance.AddAttribute(classText.text, attribute))
+        if (ClassDiagramView.Instance.AddAttribute(classText.text, attribute))
         {
             if (isArray.isOn)
             {

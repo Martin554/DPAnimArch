@@ -44,7 +44,7 @@ public struct Anim
 
         if (ClassPool.Any())
         {
-            List<Relation> Relations = ClassDiagram.Instance.GetRelationList().Where(r => ("Generalization".Equals(r.PropertiesEa_type) || "Realisation".Equals(r.PropertiesEa_type))).ToList();//
+            List<Relation> Relations = ClassDiagramView.Instance.GetRelationList().Where(r => ("Generalization".Equals(r.PropertiesEa_type) || "Realisation".Equals(r.PropertiesEa_type))).ToList();//
 
             string SuperClass;
             Relation Relation;

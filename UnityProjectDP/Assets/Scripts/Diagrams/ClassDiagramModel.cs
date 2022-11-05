@@ -5,12 +5,12 @@ using UnityEngine;
 
 public class ClassDiagramModel : Singleton<ClassDiagramModel>
 {
-    private List<MetadataClass> classes;
+    private List<ClassModel> classes;
     private List<Relation> relations;
 
     protected override void OnAwake()
     {
-        classes = new List<MetadataClass>();
+        classes = new List<ClassModel>();
         relations = new List<Relation>();
     }
 
@@ -36,17 +36,17 @@ public class ClassDiagramModel : Singleton<ClassDiagramModel>
             metadataClass.Methods = methods;
         }
     }
-    public void AddClass(MetadataClass element)
+    public void AddClass(ClassModel element)
     {
         classes.Add(element);
     }
     public void AddClass(ulong id)
     {
-        classes.Add(new MetadataClass(id));
+        classes.Add(new ClassModel(id));
     }
     public void AddClass(string name)
     {
-        classes.Add(new MetadataClass(name));
+        classes.Add(new ClassModel(name));
     }
     public void AddRelation(Relation relation)
     {

@@ -109,16 +109,16 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
             case "Association":
                 switch (direction)
                 {
-                    case "Source -> Destination": return ClassDiagram.Instance.associationSDPrefab;
-                    case "Destination -> Source": return ClassDiagram.Instance.associationDSPrefab;
-                    case "Bi-Directional": return ClassDiagram.Instance.associationFullPrefab;
-                    default: return ClassDiagram.Instance.associationNonePrefab;
+                    case "Source -> Destination": return ClassDiagramView.Instance.associationSDPrefab;
+                    case "Destination -> Source": return ClassDiagramView.Instance.associationDSPrefab;
+                    case "Bi-Directional": return ClassDiagramView.Instance.associationFullPrefab;
+                    default: return ClassDiagramView.Instance.associationNonePrefab;
                 }
                
-            case "Generalization": return ClassDiagram.Instance.generalizationPrefab;
-            case "Dependency": return ClassDiagram.Instance.dependsPrefab;
-            case "Realisation": return ClassDiagram.Instance.realisationPrefab;
-            default: return ClassDiagram.Instance.associationNonePrefab;
+            case "Generalization": return ClassDiagramView.Instance.generalizationPrefab;
+            case "Dependency": return ClassDiagramView.Instance.dependsPrefab;
+            case "Realisation": return ClassDiagramView.Instance.realisationPrefab;
+            default: return ClassDiagramView.Instance.associationNonePrefab;
         }
     }
     private void GenerateClassAttributes(Class currentClass, ref CDClass cdcClass)

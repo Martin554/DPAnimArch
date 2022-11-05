@@ -7,7 +7,7 @@ public class AnimClass
     [SerializeField]
     public string Name;
     [SerializeField]
-    public string SuperClass; //od ktorej dedi
+    public string SuperClass;
     [SerializeField]
     public List<string> Attributes;
     [SerializeField]

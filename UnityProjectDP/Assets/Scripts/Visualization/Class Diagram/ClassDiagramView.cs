@@ -7,7 +7,7 @@ using System.Xml;
 using OALProgramControl;
 using Unity.Netcode;
 
-public class ClassDiagram : Singleton<ClassDiagram>
+public class ClassDiagramView : Singleton<ClassDiagramView>
 {
     public GameObject graphPrefab;
     public GameObject classPrefab;
@@ -24,7 +24,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
     private List<Relation> DiagramRelations; //List of all relations from XMI
     private Dictionary<string, GameObject> GameObjectRelations; // Dictionary of all objects created from list classes
     private List<ClassView> ClassViews;
-    // private DiagramModel<MetadataClass> classDiagram;
+    // private DiagramModel<ClassModel> classDiagram;
 
     public List<Class> diagramClasses => DiagramClasses;
     public List<ClassView> classViews => ClassViews;
@@ -129,7 +129,7 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 classView.SetClassProperty("Methods", stringMethods);
                 classView.SetClassProperty("Attributes", stringAttributes);
 
-                ClassDiagram.Instance.ClassViews.Add(classView);
+                ClassViews.Add(classView);
 
                 currentClass.Id = classNetworkId;
 

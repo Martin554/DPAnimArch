@@ -23,6 +23,4 @@ public class Method
         this.ReturnValue = returnValue;
     }
     public Method() { }
-
 }
-

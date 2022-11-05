@@ -11,7 +11,7 @@ using Assets.Scripts.AnimationControl.OAL;
 //Controls the entire animation process
 public class Animation : Singleton<Animation>
 {
-    private ClassDiagram classDiagram;
+    private ClassDiagramView _classDiagramView;
     public Color classColor;
     public Color methodColor;
     public Color relationColor;
@@ -34,7 +34,7 @@ public class Animation : Singleton<Animation>
     public string startMethodName;
     private void Awake()
     {
-        classDiagram = GameObject.Find("ClassDiagram").GetComponent<ClassDiagram>();
+        _classDiagramView = GameObject.Find("ClassDiagramView").GetComponent<ClassDiagramView>();
         standardPlayMode = true;
     }
 
@@ -189,7 +189,7 @@ public class Animation : Singleton<Animation>
     }
     public IEnumerator AnimateFill(OALCall Call)
     {
-        GameObject edge = classDiagram.FindEdge(Call.RelationshipName);
+        GameObject edge = _classDiagramView.FindEdge(Call.RelationshipName);
         if (edge != null)
         {
             if (edge.CompareTag("Generalization")|| edge.CompareTag("Implements")|| edge.CompareTag("Realisation"))
@@ -201,12 +201,12 @@ public class Animation : Singleton<Animation>
             {
                 GameObject newFiller = Instantiate(LineFill);
                 Fillers.Add(newFiller);
-                newFiller.transform.position = classDiagram.graph.transform.GetChild(0).transform.position;
-                newFiller.transform.SetParent(classDiagram.graph.transform);
+                newFiller.transform.position = _classDiagramView.graph.transform.GetChild(0).transform.position;
+                newFiller.transform.SetParent(_classDiagramView.graph.transform);
                 newFiller.transform.localScale = new Vector3(1, 1, 1);
                 LineFiller lf = newFiller.GetComponent<LineFiller>();
                 bool flip = false;
-                if (classDiagram.FindOwnerOfRelation(/*Call.CallerClassName, Call.CalledClassName*/Call.RelationshipName).Equals(Call.CalledClassName))
+                if (_classDiagramView.FindOwnerOfRelation(/*Call.CallerClassName, Call.CalledClassName*/Call.RelationshipName).Equals(Call.CalledClassName))
                 {
                     flip = true;
                 }
@@ -217,7 +217,7 @@ public class Animation : Singleton<Animation>
     //Method used to Highlight/Unhighlight single class by name, depending on bool value of argument 
     public void HighlightClass(string className, bool isToBeHighlighted)
     {
-        GameObject node = classDiagram.FindNode(className);
+        GameObject node = _classDiagramView.FindNode(className);
         BackgroundHighlighter bh = null;
         if (node != null)
         {
@@ -246,7 +246,7 @@ public class Animation : Singleton<Animation>
     //Method used to Highlight/Unhighlight single method by name, depending on bool value of argument 
     public void HighlightMethod(string className, string methodName, bool isToBeHighlighted)
     {
-        GameObject node = classDiagram.FindNode(className);
+        GameObject node = _classDiagramView.FindNode(className);
         TextHighlighter th = null;
         if (node != null)
         {
@@ -276,7 +276,7 @@ public class Animation : Singleton<Animation>
     //Method used to Highlight/Unhighlight single edge by name, depending on bool value of argument 
     public void HighlightEdge(string relationshipName, bool isToBeHighlighted)
     {
-        GameObject edge = classDiagram.FindEdge(relationshipName);
+        GameObject edge = _classDiagramView.FindEdge(relationshipName);
         if (edge != null)
         {
             if (isToBeHighlighted)
@@ -395,8 +395,8 @@ public class Animation : Singleton<Animation>
     {
         isPaused = false;
         StopAllCoroutines();
-        if(ClassDiagram.Instance.GetClassList()!=null)
-            foreach (Class c in ClassDiagram.Instance.GetClassList())
+        if(ClassDiagramView.Instance.GetClassList()!=null)
+            foreach (Class c in ClassDiagramView.Instance.GetClassList())
             {
                 HighlightClass(c.Name, false);
                 if(c.Methods!=null)
@@ -405,8 +405,8 @@ public class Animation : Singleton<Animation>
                         HighlightMethod(c.Name, m.Name, false);
                     }
             }
-        if(ClassDiagram.Instance.GetRelationList()!=null)
-            foreach (Relation r in ClassDiagram.Instance.GetRelationList())
+        if(ClassDiagramView.Instance.GetRelationList()!=null)
+            foreach (Relation r in ClassDiagramView.Instance.GetRelationList())
             {
                 HighlightEdge(r.OALName, false);
             }
