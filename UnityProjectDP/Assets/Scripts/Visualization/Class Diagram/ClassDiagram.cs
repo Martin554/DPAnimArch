@@ -115,21 +115,23 @@ public class ClassDiagram : Singleton<ClassDiagram>
                 var networkObject = classGameObject.GetComponent<NetworkObject>();
                 var classNetworkId = networkObject.NetworkObjectId;
 
-                var classView = new ClassView(classGameObject, classNetworkId);
-                classView.Top = currentClass.Top;
-                classView.Bottom = currentClass.Bottom;
-                classView.Right = currentClass.Right;
-                classView.Left = currentClass.Left;
-                classView.SetClassName(currentClass.Name);
-                classView.SetTMProAttributes(currentClass.Attributes);
+                var classView = new ClassView(classGameObject, classNetworkId)
+                {
+                    Top = currentClass.Top,
+                    Bottom = currentClass.Bottom,
+                    Right = currentClass.Right,
+                    Left = currentClass.Left
+                };
+                var stringMethods = ClassView.MethodsToString(currentClass.Methods);
+                var stringAttributes = ClassView.AttributesToString(currentClass.Attributes);
 
-                classView.SetTMProMethods(currentClass.Methods);
+                classView.SetClassProperty("Header", currentClass.Name);
+                classView.SetClassProperty("Methods", stringMethods);
+                classView.SetClassProperty("Attributes", stringAttributes);
+
                 ClassDiagram.Instance.ClassViews.Add(classView);
 
                 currentClass.Id = classNetworkId;
-
-                var stringMethods = classView.methodsToString(currentClass.Methods);
-                var stringAttributes = classView.attributesToString(currentClass.Attributes);
 
                 Networking.Spawner.Instance.SetClassProperty("Header", currentClass.Name, classNetworkId);
                 Networking.Spawner.Instance.SetClassProperty("Methods", stringMethods, classNetworkId);
@@ -138,7 +140,6 @@ public class ClassDiagram : Singleton<ClassDiagram>
             else
             {
                 Networking.Spawner.Instance.SpawnClassServerRpc();
-                Networking.SharedClassDiagram.Instance.IncrementClassCountServerRpc();
             }
         }
 

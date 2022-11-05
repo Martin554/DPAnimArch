@@ -5,97 +5,57 @@ using TMPro;
 
 public class ClassView
 {
-    private GameObject gameObject;
     public ulong Id { get; set; }
     public float Left { get; set; }
     public float Right { get; set; }
     public float Top { get; set; }
     public float Bottom { get; set; }
-    internal GameObject GameObject
-    {
-        get
-        {
-            return gameObject;
-        }
-        set
-        {
-            this.gameObject = value;
-        }
-    }
-
+    internal GameObject GameObject { get; set; }
     public ClassView(GameObject gameObject, ulong id)
     {
-        this.gameObject = gameObject;
+        this.GameObject = gameObject;
         this.Id = id;
     }
-
-    public void SetClassName(string className)
+    public void SetClassProperty(string propertyName, string propertyValue)
     {
-        gameObject.transform
+        GameObject.transform
             .Find("Background")
-            .Find("Header")
+            .Find(propertyName)
             .GetComponent<TextMeshProUGUI>()
-            .text = className;
+            .text = propertyValue;
     }
-    public string attributesToString(List<AttributeModel> attributes)
+    public static string AttributesToString(List<AttributeModel> attributes)
     {
-        string result = "";
-        if (attributes != null)
+        if (attributes == null)
+            return "";
+        var textualAttributes = "";
+        foreach (var attribute in attributes)
         {
-            string textualAttributes = "";
-            foreach (AttributeModel attribute in attributes)
-            {
-                textualAttributes += attribute.Name + ": " + attribute.Type + "\n";
-            }
-            result = textualAttributes;
+            textualAttributes += attribute.Name + ": " + attribute.Type + "\n";
         }
-        return result;
+        return textualAttributes;
     }
-    public void SetTMProAttributes(List<AttributeModel> attributes)
+    public static string MethodsToString(List<Method> methods)
     {
-        if (gameObject)
+        if (methods == null)
+            return "";
+        var result = "";
+        foreach (var method in methods)
         {
-            gameObject.transform
-                .Find("Background")
-                .Find("Attributes")
-                .GetComponent<TextMeshProUGUI>()
-                .text = attributesToString(attributes);
-        }
-    }
-
-    public string methodsToString(List<Method> methods)
-    {
-        string result = "";
-        if (methods != null)
-        {
-            foreach (Method method in methods)
+            var arguments = "(";
+            if (method.arguments != null)
             {
-                string arguments = "(";
-                if (method.arguments != null)
+                for (var argumentIndex = 0; argumentIndex < method.arguments.Count; argumentIndex++)
                 {
-                    for (int argumentIndex = 0; argumentIndex < method.arguments.Count; argumentIndex++)
-                    {
-                        if (argumentIndex < method.arguments.Count - 1)
-                            arguments += (method.arguments[argumentIndex] + ", ");
-                        else
-                            arguments += (method.arguments[argumentIndex]);
-                    }
+                    if (argumentIndex < method.arguments.Count - 1)
+                        arguments += (method.arguments[argumentIndex] + ", ");
+                    else
+                        arguments += (method.arguments[argumentIndex]);
                 }
-                arguments += ")";
-                result += method.Name + arguments + " :" + method.ReturnValue + "\n";
             }
+            arguments += ")";
+            result += method.Name + arguments + " :" + method.ReturnValue + "\n";
         }
         return result;
-    }
-    public void SetTMProMethods(List<Method> methods)
-    {
-        if (methods != null)
-        {
-            gameObject.transform
-                .Find("Background")
-                .Find("Methods")
-                .GetComponent<TextMeshProUGUI>()
-                .text = methodsToString(methods);
-        }
     }
 }
