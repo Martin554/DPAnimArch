@@ -12,7 +12,7 @@ using UnityEngine.UI.Extensions;
 using Unity.Netcode;
 using System;
 
-public class Graph : MonoBehaviour
+public class Graph : NetworkBehaviour
 {
 	public GameObject nodePrefab;
 	public GameObject edgePrefab;
@@ -200,51 +200,58 @@ public class Graph : MonoBehaviour
 		relayout = true;
 	}
 
-	private void Update()
-	{
-		if (reposition)
-		{
-			PositionNodes();
-			Center();
-			reposition = false;
-		}
-		if (redraw)
-		{
-			RedrawEdges();
-			redraw = false;
-		}
-		if (relayout)
-		{
-			if (graphTask == null)
-			{
-				UpdateNodes();
-				graphTask = Task.Run(() =>
-				{
-					LayoutHelpers.CalculateLayout(graph, settings, null);
-					LayoutHelpers.RouteAndLabelEdges(graph, settings, graph.Edges);
-				});
-				Forget(graphTask, () =>
-				{
-					graphTask = null;
-					reposition = true;
-					redraw = true;
-				});
-				relayout = false;
-			}
-		}
-		if (reroute)
-		{
-			if (graphTask == null)
-			{
-				UpdateNodes();
-				graphTask = Task.Run(() => LayoutHelpers.RouteAndLabelEdges(graph, settings, graph.Edges));
-				Forget(graphTask, () =>
-				{
-					graphTask = null;
-					redraw = true;
-				});
-				reroute = false;
-			}
-		}
-	}
+
+    private void Update()
+    {
+        if (IsServer)
+        {
+            if (reposition)
+            {
+                PositionNodes();
+                Center();
+                reposition = false;
+            }
+
+            if (redraw)
+            {
+                RedrawEdges();
+                redraw = false;
+            }
+
+            if (relayout)
+            {
+                if (graphTask == null)
+                {
+                    UpdateNodes();
+                    graphTask = Task.Run(() =>
+                    {
+                        LayoutHelpers.CalculateLayout(graph, settings, null);
+                        LayoutHelpers.RouteAndLabelEdges(graph, settings, graph.Edges);
+                    });
+                    Forget(graphTask, () =>
+                    {
+                        graphTask = null;
+                        reposition = true;
+                        redraw = true;
+                    });
+                    relayout = false;
+                }
+            }
+
+            if (reroute)
+            {
+                if (graphTask == null)
+                {
+                    UpdateNodes();
+                    graphTask = Task.Run(() => LayoutHelpers.RouteAndLabelEdges(graph, settings, graph.Edges));
+                    Forget(graphTask, () =>
+                    {
+                        graphTask = null;
+                        redraw = true;
+                    });
+                    reroute = false;
+                }
+            }
+        }
+    }
 }

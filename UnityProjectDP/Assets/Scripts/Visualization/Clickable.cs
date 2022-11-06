@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -7,7 +8,7 @@ using UnityEngine.EventSystems;
 
 [Serializable]
 public class GameObjectEvent : UnityEvent<GameObject> { };
-public class Clickable : MonoBehaviour
+public class Clickable : NetworkBehaviour
 {
     public GameObjectEvent triggerHighlighAction;
     public GameObjectEvent triggerUnhighlighAction;
@@ -37,9 +38,16 @@ public class Clickable : MonoBehaviour
         selectedElement = false;
     }
 
+
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateClassPositionServerRpc(Vector3 position)
+    {
+        transform.position = position;
+    }
+
     void OnMouseDrag()
     {
-        if (selectedElement == false || ToolManager.Instance.SelectedTool != "DiagramMovement"|| IsMouseOverUI())
+        if (selectedElement == false || ToolManager.Instance.SelectedTool != "DiagramMovement" || IsMouseOverUI())
         {
             return;
         }
@@ -47,7 +55,15 @@ public class Clickable : MonoBehaviour
         Vector3 cursorPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
         Vector3 cursorPosition = Camera.main.ScreenToWorldPoint(cursorPoint) + offset;
         cursorPosition.z = transform.position.z;
-        transform.position = cursorPosition;
+        if (IsServer)
+        {
+            transform.position = cursorPosition;
+        }
+
+        if (IsClient)
+        {
+            UpdateClassPositionServerRpc(cursorPosition);
+        }
     }
     void OnMouseOver()
     {

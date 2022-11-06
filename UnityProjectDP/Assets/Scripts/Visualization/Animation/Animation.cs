@@ -34,7 +34,7 @@ public class Animation : Singleton<Animation>
     public string startMethodName;
     private void Awake()
     {
-        _classDiagramView = GameObject.Find("ClassDiagramView").GetComponent<ClassDiagramView>();
+        _classDiagramView = GameObject.Find("ClassDiagram").GetComponent<ClassDiagramView>();
         standardPlayMode = true;
     }
 
