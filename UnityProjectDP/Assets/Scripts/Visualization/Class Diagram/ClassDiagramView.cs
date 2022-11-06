@@ -25,9 +25,16 @@ public class ClassDiagramView : Singleton<ClassDiagramView>
     private Dictionary<string, GameObject> GameObjectRelations; // Dictionary of all objects created from list classes
     private List<ClassView> ClassViews;
     // private DiagramModel<ClassModel> classDiagram;
-
+    public Color SelectedClassColor { get; set; }
     public List<Class> diagramClasses => DiagramClasses;
     public List<ClassView> classViews => ClassViews;
+
+    private void Start()
+    {
+        var playerObject = NetworkManager.Singleton.LocalClient.PlayerObject;
+        var player = playerObject.GetComponent<Networking.Player>();
+        SelectedClassColor = playerObject.GetComponent<Networking.Player>().Color;
+    }
 
     //Awake is called before the first frame and before Start()
     private void Awake()
@@ -39,9 +46,6 @@ public class ClassDiagramView : Singleton<ClassDiagramView>
         ClassViews = new List<ClassView>();
         ResetDiagram();
         ClassDiagramModel.Instance.ClearDiagram();
-    }
-    private void Start()
-    {
     }
     protected void ResetClasses()
     {

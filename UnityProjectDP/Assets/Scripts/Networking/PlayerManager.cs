@@ -5,10 +5,28 @@ using UnityEngine.SceneManagement;
 
 namespace Networking
 {
-    public class PlayerManager : MonoBehaviour
+    public class PlayerManager : NetworkSingleton<PlayerManager>
     {
         static string playerName = "Enter name";
 
+        private void Start()
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += (id) =>
+            {
+                var playerObject = NetworkManager.LocalClient.PlayerObject;
+                var no = playerObject.GetComponent<NetworkObject>();
+                if (id == 0)
+                {
+                    var player = playerObject.GetComponent<Player>();
+                    player.Color = Color.green;
+                }
+                else
+                {
+                    var player = playerObject.GetComponent<Player>();
+                    player.Color = Color.cyan;
+                }
+            };
+        }
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
@@ -39,12 +57,12 @@ namespace Networking
             if (GUILayout.Button("Client"))
             {
                 NetworkManager.Singleton.StartClient();
-                //var playerObject = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
-                //var player = playerObject.GetComponent<Player>();
-                //player.Name = playerName;
-
             }
-            if (GUILayout.Button("Server")) NetworkManager.Singleton.StartServer();
+
+            if (GUILayout.Button("Server"))
+            {
+                NetworkManager.Singleton.StartServer();
+            }
         }
 
         static void StatusLabels()
@@ -54,10 +72,6 @@ namespace Networking
             GUILayout.Label("Transport: " +
                 NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetType().Name);
             GUILayout.Label("Mode: " + mode);
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsClient)
-            {
-
-            }
         }
     }
 }

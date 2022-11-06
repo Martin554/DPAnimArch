@@ -12,7 +12,7 @@ public class LineControl : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(1) && ToolManager.Instance.SelectedTool == "Highlighter")
         {
-            //triggerUnhighlighAction.Invoke(gameObject);
+            //TriggerUnhighlightAction.Invoke(gameObject);
         }
     }
 }
