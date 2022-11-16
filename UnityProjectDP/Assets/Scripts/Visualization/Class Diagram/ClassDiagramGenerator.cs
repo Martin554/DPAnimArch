@@ -102,7 +102,7 @@ public class ClassDiagramGenerator : Singleton<ClassDiagramGenerator>
         }
         return relations;
     }
-    private GameObject GenerateRelationTypePrefab(string relationType, string direction)
+    public GameObject GenerateRelationTypePrefab(string relationType, string direction)
     {
         switch (relationType)
         {

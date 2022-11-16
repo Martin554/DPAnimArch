@@ -11,6 +11,7 @@ using Microsoft.Msagl.Core.DataStructures;
 using UnityEngine.UI.Extensions;
 using Unity.Netcode;
 using System;
+using UnityEngine.Networking.Types;
 
 public class Graph : NetworkBehaviour
 {
@@ -19,6 +20,7 @@ public class Graph : NetworkBehaviour
 	public float factor = 0.2f;
 	public Vector2 margins;
 
+    public ulong NetworkID;
 	private GeometryGraph graph;
 	private LayoutAlgorithmSettings settings;
 
@@ -97,6 +99,20 @@ public class Graph : NetworkBehaviour
 		return go;
 	}
 
+    public GameObject AddEdge(UNode from, UNode to, GameObject prefab)
+    {
+        var gameObject = Instantiate(prefab, units);
+		var uEdge = gameObject.GetComponent<UEdge>();
+		Edge edge = new Edge(from.GraphNode, to.GraphNode);
+        edge.LineWidth = ToGraphSpace(uEdge.Width);
+        edge.UserData = gameObject;
+        uEdge.GraphEdge = edge;
+        graph.Edges.Add(edge);
+
+
+        return gameObject;
+    }
+
 	public void RemoveEdge(GameObject edge)
 	{
 		graph.Edges.Remove(edge.GetComponent<UEdge>().GraphEdge);
@@ -111,6 +127,17 @@ public class Graph : NetworkBehaviour
 	float ToUnitySpace(double x)
 	{
 		return (float)x * factor;
+	}
+
+    protected virtual void OnNetworkSpawn()
+    {
+        if (IsServer)
+            return;
+        graph = new GeometryGraph();
+        units = transform.Find("Units"); //extra object to center graph
+        settings = new SugiyamaLayoutSettings();
+        settings.EdgeRoutingSettings.EdgeRoutingMode = EdgeRoutingMode.RectilinearToCenter;
+        GetComponent<Canvas>().worldCamera = Camera.main;
 	}
 
 	protected virtual void Awake()

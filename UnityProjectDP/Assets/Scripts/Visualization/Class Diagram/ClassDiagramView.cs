@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using TMPro;
 using System.Xml;
+using Networking;
 using OALProgramControl;
 using Unity.Netcode;
 
@@ -105,17 +106,17 @@ public class ClassDiagramView : Singleton<ClassDiagramView>
             // View - generate GameObjects + CD data
             DiagramClasses = ClassDiagramGenerator.Instance.GenerateClassesData(ref graph);
             DiagramRelations = ClassDiagramGenerator.Instance.GenerateRelationsData();
+
             k++;
             AnimationData.Instance.diagramId++;
         }
 
         foreach(var currentClass in DiagramClasses)
         {
-            ClassDiagramModel.Instance.AddClass(currentClass.Name);
             if (NetworkManager.Singleton.IsServer)
             {
                 var classGameObject = graph.AddNode();
-                Networking.Spawner.Instance.SpawnClass(classGameObject);
+                Spawner.Instance.SpawnClass(classGameObject);
                 var networkObject = classGameObject.GetComponent<NetworkObject>();
                 var classNetworkId = networkObject.NetworkObjectId;
 
@@ -133,28 +134,36 @@ public class ClassDiagramView : Singleton<ClassDiagramView>
                 classView.SetClassProperty("Methods", stringMethods);
                 classView.SetClassProperty("Attributes", stringAttributes);
 
+                currentClass.Id = classNetworkId;
+                ClassDiagramModel.Instance.AddClass(currentClass.Name, currentClass.Id);
                 ClassViews.Add(classView);
 
-                currentClass.Id = classNetworkId;
-
-                Networking.Spawner.Instance.SetClassProperty("Header", currentClass.Name, classNetworkId);
-                Networking.Spawner.Instance.SetClassProperty("Methods", stringMethods, classNetworkId);
-                Networking.Spawner.Instance.SetClassProperty("Attributes", stringAttributes, classNetworkId);
+                Spawner.Instance.SetClassProperty("Header", currentClass.Name, classNetworkId);
+                Spawner.Instance.SetClassProperty("Methods", stringMethods, classNetworkId);
+                Spawner.Instance.SetClassProperty("Attributes", stringAttributes, classNetworkId);
             }
             else
             {
-                Networking.Spawner.Instance.SpawnClassServerRpc();
+                Spawner.Instance.SpawnClassServerRpc();
             }
-        }
-
-
-        foreach (var currentRelation in DiagramRelations)
-        {
-            ClassDiagramModel.Instance.AddRelation(currentRelation);
         }
 
         GenerateDiagramGameObjects();
 
+        foreach (var currentRelation in DiagramRelations)
+        {
+            ClassDiagramModel.Instance.AddRelation(currentRelation);
+            if (NetworkManager.Singleton.IsServer)
+            {
+                var fromClassName = currentRelation.FromClass;
+                var toClassName = currentRelation.ToClass;
+
+                var fromClass = ClassDiagramModel.Instance.Classes.Find(classModel => classModel.Name == fromClassName);
+                var toClass = ClassDiagramModel.Instance.Classes.Find(classModel => classModel.Name == toClassName);
+
+                Spawner.Instance.AddEdgeToModelClientRpc(fromClass.Id, toClass.Id, currentRelation.PropertiesEa_type, currentRelation.ProperitesDirection);
+            }
+        }
         ManualLayout();
     }
     public Graph CreateGraph()
@@ -164,11 +173,12 @@ public class ClassDiagramView : Singleton<ClassDiagramView>
         graph = graphGameObject.GetComponent<Graph>();
         if (NetworkManager.Singleton.IsServer)
         {
-            Networking.Spawner.Instance.SpawnGameObject(graphGameObject);
+            Spawner.Instance.SpawnGameObject(graphGameObject);
+            Spawner.Instance.AddGraphToModelClientRpc(graphGameObject.GetComponent<NetworkObject>().NetworkObjectId);
         }
         else
         {
-            Networking.Spawner.Instance.SpawnClassServerRpc();
+            Spawner.Instance.SpawnClassServerRpc();
         }
         return graph;
     }

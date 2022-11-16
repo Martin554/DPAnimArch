@@ -5,7 +5,15 @@ using UnityEngine;
 
 public class ClassDiagramModel : Singleton<ClassDiagramModel>
 {
+    public ulong GraphId;
     private List<ClassModel> classes;
+    public List<ClassModel> Classes
+    {
+        get
+        {
+            return classes;
+        }
+    }
     private List<Relation> relations;
 
     protected override void OnAwake()
@@ -28,6 +36,7 @@ public class ClassDiagramModel : Singleton<ClassDiagramModel>
             metadataClass.Name = name;
         }
     }
+
     public void SetClassMethods(List<Method> methods, ulong id)
     {
         var metadataClass = classes.Find(x => x.Id == id);
@@ -47,6 +56,12 @@ public class ClassDiagramModel : Singleton<ClassDiagramModel>
     public void AddClass(string name)
     {
         classes.Add(new ClassModel(name));
+    }
+    public void AddClass(string name, ulong id)
+    {
+        var classModel = new ClassModel(name);
+        classModel.Id = id;
+        classes.Add(classModel);
     }
     public void AddRelation(Relation relation)
     {

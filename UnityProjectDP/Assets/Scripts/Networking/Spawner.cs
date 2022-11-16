@@ -84,6 +84,34 @@ namespace Networking
             }
         }
 
+        [ClientRpc]
+        public void AddEdgeToModelClientRpc(ulong fromClassId, ulong toClassId, string relationType, string direction)
+        {
+            if (NetworkManager.Singleton.IsServer)
+                return;
+            var relationTypePrefab = ClassDiagramGenerator.Instance.GenerateRelationTypePrefab(relationType, direction);
+
+            NetworkObject fromClassNetworkObject = null;
+            NetworkObject toClassNetworkObject = null;
+            NetworkObject graphNetworkObject = null;
+
+            //var gameObjects = NetworkManager.GetComponents<NetworkObject>();
+            var gameObjects = NetworkManager.SpawnManager.SpawnedObjects;
+            if (gameObjects.Count > 0)
+            {
+                gameObjects.TryGetValue(fromClassId, out fromClassNetworkObject);
+                gameObjects.TryGetValue(toClassId, out toClassNetworkObject);
+                gameObjects.TryGetValue(ClassDiagramModel.Instance.GraphId, out graphNetworkObject);
+
+            }
+
+            if (fromClassNetworkObject && toClassNetworkObject && graphNetworkObject)
+            {
+                var graph = graphNetworkObject.GetComponent<Graph>();
+                graph.AddEdge(fromClassNetworkObject.GetComponent<UNode>(), toClassNetworkObject.GetComponent<UNode>(), relationTypePrefab);
+            }
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void SetClassPropertyServerRpc(string propertyName, string property, ulong id)
         {
@@ -116,6 +144,12 @@ namespace Networking
             var no = go.GetComponent<NetworkObject>();
             no.Spawn();
             return no.NetworkObjectId;
+        }
+
+        [ClientRpc]
+        public void AddGraphToModelClientRpc(ulong graphId)
+        {
+            ClassDiagramModel.Instance.GraphId = graphId;
         }
         public void SpawnClass(GameObject go)
         {
