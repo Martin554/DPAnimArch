@@ -21,6 +21,8 @@ namespace Visualization.UI.PopUps
         {
             base.ActivateCreation(classTxt);
             inp.text = classTxt.text;
+            // Todo: od servara zistit ID
+            // Doplnit Ne-network class
             _formerClass = DiagramPool.Instance.ClassDiagram.FindClassByName(inp.text).ParsedClass;
             confirm.text = "Edit";
         }
