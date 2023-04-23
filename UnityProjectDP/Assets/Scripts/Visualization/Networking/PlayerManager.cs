@@ -1,4 +1,7 @@
-﻿using Unity.Netcode;
+﻿using System;
+using Unity.Netcode;
+using Unity.Netcode.Transports;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,6 +10,8 @@ namespace Visualization.Networking
     public class PlayerManager : NetworkSingleton<PlayerManager>
     {
         static string playerName = "Enter name";
+        string ip = "127.0.0.1";
+        ushort port = 55555;
 
         private void Start()
         {
@@ -22,6 +27,9 @@ namespace Visualization.Networking
             if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
             {
                 playerName = GUILayout.TextField(playerName, 25);
+                ip = GUILayout.TextField(ip, 25);
+                var portString = GUILayout.TextField(port.ToString(), 7);
+                port = (ushort)UInt16.Parse(portString);
                 StartButtons();
             }
             else
@@ -32,20 +40,23 @@ namespace Visualization.Networking
             GUILayout.EndArea();
         }
 
-        static void StartButtons()
+        void StartButtons()
         {
             if (GUILayout.Button("Host"))
             {
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(ip, port, "0.0.0.0");
                 NetworkManager.Singleton.StartHost();
                 SceneManager.LoadScene("AnimArch");
             }
             if (GUILayout.Button("Client"))
             {
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(ip, port);
                 NetworkManager.Singleton.StartClient();
             }
 
             if (GUILayout.Button("Server"))
             {
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(ip, port, "0.0.0.0");
                 NetworkManager.Singleton.StartServer();
             }
         }
