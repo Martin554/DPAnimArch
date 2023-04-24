@@ -732,7 +732,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 200, y: 43.243, z: 5}
+  m_Size: {x: 205, y: 43.243, z: 5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &114466928306324720
 MonoBehaviour:
@@ -2570,8 +2570,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2398271712557318398}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: OpenClassPopUp
+        m_TargetAssemblyTypeName: Visualization.UI.ClassComponentsManagers.ClassManager,
+          XDE
+        m_MethodName: OpenRenameClassPopUp
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -2513,8 +2513,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2398271712557318398}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: OpenClassPopUp
+        m_TargetAssemblyTypeName: Visualization.UI.ClassComponentsManagers.ClassManager,
+          XDE
+        m_MethodName: OpenRenameClassPopUp
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

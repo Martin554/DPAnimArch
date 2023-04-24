@@ -11,16 +11,16 @@ namespace Visualization.UI.PopUps
         private const string ErrorClassNameExists = "Class with the same name already exists";
         public TMP_Text confirm;
         private Class _formerClass;
-        private bool _classExists;
+        private ulong _classId;
 
         public override void ActivateCreation()
         {
             base.ActivateCreation();
             confirm.text = "Add";
-            _classExists = false;
+            _classId = 0;
         }
 
-        private ulong findClassClient()
+        private void findClassClient()
         {
             var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
             var values = objects.Values;
@@ -28,19 +28,18 @@ namespace Visualization.UI.PopUps
             {
                 if (value.name == inp.text)
                 {
-                    _classExists = true;
-                    confirm.text = "Edit";
-                    return value.NetworkObjectId;
+                    _classId = value.NetworkObjectId;
+                    return;
                 }
             }
-            return 0;
+            _classId = 0;
         }
 
         private void CreateClass(string className)
         {
             var newClass = new Class(className, Guid.NewGuid().ToString());
 
-            if (_classExists)
+            if (_classId != 0)
             {
                 DisplayError(ErrorClassNameExists);
                 return;
@@ -57,7 +56,7 @@ namespace Visualization.UI.PopUps
                 {
                     var classInDiagram = DiagramPool.Instance.ClassDiagram.FindClassByName(newClassName);
 
-                    if (_classExists && !_formerClass.Equals(classInDiagram.ParsedClass))
+                    if (_classId != 0 && !_formerClass.Equals(classInDiagram.ParsedClass))
                     {
                         _formerClass = DiagramPool.Instance.ClassDiagram.FindClassByName(inp.text).ParsedClass;
                         confirm.text = "Edit";
@@ -65,19 +64,14 @@ namespace Visualization.UI.PopUps
                 }
                 else
                 {
-                    var no = findClassClient();
-                    if (no != 0)
-                    {
-                        confirm.text = "Edit";
-                    }
-                    else
+                    if (_classId == 0)
                     {
                         DisplayError(ErrorClassNameExists);
                         return;
                     }
                 }
             }
-            else if (_classExists)
+            else if (_classId != 0)
             {
                 var classInDiagram = DiagramPool.Instance.ClassDiagram.FindClassByName(newClassName);
                 if (!_formerClass.Equals(classInDiagram.ParsedClass))
@@ -103,7 +97,11 @@ namespace Visualization.UI.PopUps
                 }
                 else
                 {
-                    var no = findClassClient();
+                    findClassClient();
+                    if (_classId != 0)
+                    {
+                        confirm.text = "Edit";
+                    }
                 }
             }
             else
@@ -122,7 +120,7 @@ namespace Visualization.UI.PopUps
             }
 
             var inpClassName = inp.text.Replace(" ", "_");
-            if (_formerClass == null && !_classExists)
+            if (_formerClass == null && _classId == 0)
             {
                 CreateClass(inpClassName);
             }
@@ -138,6 +136,7 @@ namespace Visualization.UI.PopUps
         {
             base.Deactivate();
             _formerClass = null;
+            _classId = 0;
         }
     }
 }

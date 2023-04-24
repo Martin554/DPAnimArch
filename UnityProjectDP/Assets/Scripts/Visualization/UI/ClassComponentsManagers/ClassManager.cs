@@ -21,6 +21,10 @@ namespace Visualization.UI.ClassComponentsManagers
         {
             UIEditorManager.Instance.classPopUp.ActivateCreation(classTxt);
         }
+        public void OpenRenameClassPopUp()
+        {
+            UIEditorManager.Instance.renameClassPopUp.ActivateCreation(classTxt);
+        }
 
         public void DeleteClass()
         {
