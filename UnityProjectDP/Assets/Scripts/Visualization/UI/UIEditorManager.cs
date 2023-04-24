@@ -21,10 +21,14 @@ namespace Visualization.UI
         [SerializeField]
         public bool NetworkEnabled;
 
-        public AttributePopUp attributePopUp;
+        public AddAttributePopUp addAttributePopUp;
+        public RenameAttributePopUp renameAttributePopUp;
+
         public MethodPopUp methodPopUp;
+
         public AddClassPopUp addClassPopUp;
         public RenameClassPopUp renameClassPopUp;
+
         public ParameterPopUp parameterPopUp;
         public ConfirmPopUp confirmPopUp;
         public ErrorPopUp errorPopUp;

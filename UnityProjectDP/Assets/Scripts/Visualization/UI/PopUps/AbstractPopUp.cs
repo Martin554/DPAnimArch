@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AnimArch.Extensions;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,6 +11,25 @@ namespace Visualization.UI.PopUps
     public abstract class AbstractPopUp : MonoBehaviour
     {
         public GameObject panel;
+
+        protected ulong findClassClient(string className)
+        {
+            var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+            var values = objects.Values;
+            foreach (var value in values)
+            {
+                if (value.name == className)
+                {
+                    return value.NetworkObjectId;
+                }
+            }
+            return 0;
+        }
+
+        protected bool isNetworkDisabledOrIsServer()
+        {
+            return (UIEditorManager.Instance.NetworkEnabled && NetworkManager.Singleton.IsServer) || !UIEditorManager.Instance.NetworkEnabled;
+        }
 
         private static void SetButtonsActive(bool active)
         {

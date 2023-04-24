@@ -30,7 +30,7 @@ namespace Visualization.UI.PopUps
             }
             else
             {
-                if (findClassClient() != 0)
+                if (findClassClient(inpClassName) != 0)
                 {
                     DisplayError(ErrorClassNameExists);
                     return;

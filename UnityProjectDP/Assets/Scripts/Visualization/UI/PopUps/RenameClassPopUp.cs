@@ -21,7 +21,7 @@ namespace Visualization.UI.PopUps
             }
             else
             {
-                _networkClassId = findClassClient();
+                _networkClassId = findClassClient(inp.text);
             }
         }
 
@@ -45,7 +45,7 @@ namespace Visualization.UI.PopUps
             }
             else
             {
-                if (findClassClient() != 0)
+                if (findClassClient(newClassName) != 0)
                 {
                     DisplayError(ErrorClassNameExists);
                     return;

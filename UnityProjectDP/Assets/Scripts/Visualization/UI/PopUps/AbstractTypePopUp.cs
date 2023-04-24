@@ -3,8 +3,11 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using OALProgramControl;
 using TMPro;
+using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.UI;
 using Visualization.ClassDiagram;
+using Visualization.Networking;
 
 namespace Visualization.UI.PopUps
 {
@@ -19,13 +22,38 @@ namespace Visualization.UI.PopUps
         public Toggle isArray;
         private readonly HashSet<TMP_Dropdown.OptionData> _variableData = new();
 
+        protected Transform findAttributeClient(ulong classNetworkId)
+        {
+            var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+            return objects[classNetworkId]
+                .transform
+                .Find("Background")
+                .Find("Attributes")
+                .Find("AttributeLayoutGroup")
+                .Find(inp.text);
+        }
+
+        private IEnumerable<string> clientClassList()
+        {
+            var classes = new List<string>();
+            var spawnedObjects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+            foreach (var spawnedObject in spawnedObjects)
+            {
+                var netClass = spawnedObject.Value.GetComponent<NetworkClass>();
+                if (netClass)
+                    classes.Add(netClass.name);
+            }
+
+            return classes;
+        }
+
+
         protected new void Awake()
         {
             base.Awake();
             
             dropdown.onValueChanged.AddListener(delegate
             {
-                
                 if (dropdown.options[dropdown.value].text == Custom)
                 {
                     customType.transform.gameObject.SetActive(true);
@@ -79,13 +107,17 @@ namespace Visualization.UI.PopUps
 
             if (isArray.isOn && customTypeField.text == "void")
                 isArray.isOn = false;
-            
+
             return (isArray.isOn ? "[]" : "") + EXETypes.ConvertEATypeName(customTypeField.text.Replace(" ", "_"));
         }
 
         private void UpdateDropdown()
         {
-            var classNames = DiagramPool.Instance.ClassDiagram.GetClassList().Select(x => x.Name);
+            IEnumerable<string> classNames = new List<string>();
+            if (isNetworkDisabledOrIsServer())
+                classNames = DiagramPool.Instance.ClassDiagram.GetClassList().Select(x => x.Name);
+            else
+                classNames = clientClassList();
 
             dropdown.options.RemoveAll(x => _variableData.Contains(x));
             _variableData.Clear();

@@ -7,9 +7,13 @@ namespace Visualization.UI.ClassComponentsManagers
     {
         public TMP_Text classTxt;
 
-        public void OpenAttributePopUp()
+        public void OpenAddAttributePopUp()
         {
-            UIEditorManager.Instance.attributePopUp.ActivateCreation(classTxt);
+            UIEditorManager.Instance.addAttributePopUp.ActivateCreation(classTxt);
+        }
+        public void OpenRenameAttributePopUp()
+        {
+            UIEditorManager.Instance.renameAttributePopUp.ActivateCreation(classTxt);
         }
 
         public void OpenMethodPopUp()

@@ -10,7 +10,7 @@ namespace Visualization.UI.ClassComponentsManagers
 
         public void OpenAttributeEditPopUp()
         {
-            UIEditorManager.Instance.attributePopUp.ActivateCreation(classTxt, attributeTxt);
+            UIEditorManager.Instance.renameAttributePopUp.ActivateCreation(classTxt, attributeTxt);
         }
 
         public void DeleteAttribute()
