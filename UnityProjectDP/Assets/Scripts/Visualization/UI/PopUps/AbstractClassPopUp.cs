@@ -1,5 +1,6 @@
 ﻿using System;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Visualization.UI.PopUps
@@ -9,8 +10,28 @@ namespace Visualization.UI.PopUps
         protected const string ErrorEmptyName = "Name can not be empty!";
 
         public TMP_InputField inp;
-        protected TMP_Text className;
         public TMP_Text errorMessage;
+        protected TMP_Text className;
+        protected ulong _networkClassId;
+
+        protected bool isNetworkDisabledOrIsServer()
+        {
+            return (UIEditorManager.Instance.NetworkEnabled && NetworkManager.Singleton.IsServer) || !UIEditorManager.Instance.NetworkEnabled;
+        }
+
+        protected ulong findClassClient()
+        {
+            var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+            var values = objects.Values;
+            foreach (var value in values)
+            {
+                if (value.name == inp.text)
+                {
+                    return value.NetworkObjectId;
+                }
+            }
+            return 0;
+        }
 
         protected void Awake()
         {

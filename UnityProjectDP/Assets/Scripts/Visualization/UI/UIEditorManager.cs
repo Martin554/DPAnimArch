@@ -23,7 +23,7 @@ namespace Visualization.UI
 
         public AttributePopUp attributePopUp;
         public MethodPopUp methodPopUp;
-        public ClassPopUp classPopUp;
+        public AddClassPopUp addClassPopUp;
         public RenameClassPopUp renameClassPopUp;
         public ParameterPopUp parameterPopUp;
         public ConfirmPopUp confirmPopUp;

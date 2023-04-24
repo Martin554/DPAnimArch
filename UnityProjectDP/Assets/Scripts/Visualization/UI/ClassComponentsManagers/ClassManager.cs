@@ -17,9 +17,9 @@ namespace Visualization.UI.ClassComponentsManagers
             UIEditorManager.Instance.methodPopUp.ActivateCreation(classTxt);
         }
 
-        public void OpenClassPopUp()
+        public void OpenAddClassPopUp()
         {
-            UIEditorManager.Instance.classPopUp.ActivateCreation(classTxt);
+            UIEditorManager.Instance.addClassPopUp.ActivateCreation(classTxt);
         }
         public void OpenRenameClassPopUp()
         {

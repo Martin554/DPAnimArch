@@ -1,5 +1,6 @@
 using System;
 using TMPro;
+using Unity.Netcode;
 using Visualization.ClassDiagram;
 using Visualization.ClassDiagram.ClassComponents;
 
@@ -14,7 +15,14 @@ namespace Visualization.UI.PopUps
         {
             base.ActivateCreation(classTxt);
             inp.text = classTxt.text;
-            _formerClass = DiagramPool.Instance.ClassDiagram.FindClassByName(inp.text).ParsedClass;
+            if (isNetworkDisabledOrIsServer())
+            {
+                _formerClass = DiagramPool.Instance.ClassDiagram.FindClassByName(inp.text).ParsedClass;
+            }
+            else
+            {
+                _networkClassId = findClassClient();
+            }
         }
 
         public override void Confirmation()
@@ -26,11 +34,22 @@ namespace Visualization.UI.PopUps
             }
 
             var newClassName = inp.text.Replace(" ", "_");
-            var classInDiagram = DiagramPool.Instance.ClassDiagram.FindClassByName(newClassName);
-            if (classInDiagram != null && !_formerClass.Equals(classInDiagram.ParsedClass))
+            if (isNetworkDisabledOrIsServer())
             {
-                DisplayError(ErrorClassNameExists);
-                return;
+                var classInDiagram = DiagramPool.Instance.ClassDiagram.FindClassByName(newClassName);
+                if (classInDiagram != null && !_formerClass.Equals(classInDiagram.ParsedClass))
+                {
+                    DisplayError(ErrorClassNameExists);
+                    return;
+                }
+            }
+            else
+            {
+                if (findClassClient() != 0)
+                {
+                    DisplayError(ErrorClassNameExists);
+                    return;
+                }
             }
 
             UIEditorManager.Instance.mainEditor.UpdateNodeName(className.text, newClassName);

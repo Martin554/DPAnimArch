@@ -23993,9 +23993,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 1038237352}
-  inp: {fileID: 533885779}
-  errorMessage: {fileID: 1016861846}
-  confirm: {fileID: 1195536685}
+  inp: {fileID: 401869985}
+  errorMessage: {fileID: 2089924223}
 --- !u!1 &1044866312
 GameObject:
   m_ObjectHideFlags: 0
@@ -24914,10 +24913,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _persistent: 1
   active: 0
-  NetworkEnabled: 0
+  NetworkEnabled: 1
   attributePopUp: {fileID: 1969025750}
   methodPopUp: {fileID: 1093984234}
-  classPopUp: {fileID: 1480568710}
+  addClassPopUp: {fileID: 1480568710}
   renameClassPopUp: {fileID: 1038237356}
   parameterPopUp: {fileID: 816517330}
   confirmPopUp: {fileID: 1971112710}
@@ -28420,8 +28419,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
+      - m_Target: {fileID: 1038237356}
+        m_TargetAssemblyTypeName: Visualization.UI.PopUps.RenameClassPopUp, XDE
         m_MethodName: Deactivate
         m_Mode: 1
         m_Arguments:
@@ -33208,7 +33207,7 @@ GameObject:
   - component: {fileID: 1480568711}
   - component: {fileID: 1480568710}
   m_Layer: 5
-  m_Name: ClassPopUp
+  m_Name: AddClassPopUp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45278,9 +45277,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11500000, guid: 03b074dfcecddb147aba592d3217c46f, type: 3}
-        m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
-        m_MethodName: 
+      - m_Target: {fileID: 1038237356}
+        m_TargetAssemblyTypeName: Visualization.UI.PopUps.RenameClassPopUp, XDE
+        m_MethodName: Confirmation
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
