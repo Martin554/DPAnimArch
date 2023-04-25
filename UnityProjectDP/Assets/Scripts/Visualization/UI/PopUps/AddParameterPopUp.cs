@@ -22,7 +22,7 @@ namespace Visualization.UI.PopUps
                 DisplayError(ErrorParameterNameExists);
                 return;
             }
-            if (_callee == "Add")
+            if (UIEditorManager.Instance.ParameterPopUpCallee == "Add")
                 UIEditorManager.Instance.addMethodPopUp.AddArg(parameter);
             else
                 UIEditorManager.Instance.editMethodPopUp.AddArg(parameter);
@@ -32,7 +32,10 @@ namespace Visualization.UI.PopUps
         public override void Deactivate()
         {
             base.Deactivate();
-            UIEditorManager.Instance.editMethodPopUp.gameObject.SetActive(true);
+            if (UIEditorManager.Instance.ParameterPopUpCallee == "Add")
+                UIEditorManager.Instance.addMethodPopUp.gameObject.SetActive(true);
+            else
+                UIEditorManager.Instance.editMethodPopUp.gameObject.SetActive(true);
         }
     }
 }

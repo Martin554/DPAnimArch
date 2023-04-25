@@ -20,6 +20,8 @@ namespace Visualization.UI
 
         public AbstractMethodPopUp methodPopUp;
 
+        public string ParameterPopUpCallee = "";
+
         [SerializeField]
         public bool NetworkEnabled;
 
@@ -29,11 +31,11 @@ namespace Visualization.UI
         public AddMethodPopUp addMethodPopUp;
         public EditMethodPopUp editMethodPopUp;
 
-        public AddClassPopUp addClassPopUp;
-        public RenameClassPopUp renameClassPopUp;
-
         public AddParameterPopUp addParameterPopUp;
         public EditParameterPopUp editParameterPopUp;
+
+        public AddClassPopUp addClassPopUp;
+        public RenameClassPopUp renameClassPopUp;
 
         public ConfirmPopUp confirmPopUp;
         public ErrorPopUp errorPopUp;

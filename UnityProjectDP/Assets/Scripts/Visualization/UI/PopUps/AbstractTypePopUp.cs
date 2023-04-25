@@ -13,8 +13,6 @@ namespace Visualization.UI.PopUps
 {
     public abstract class AbstractTypePopUp : AbstractClassPopUp
     {
-        protected string _callee;
-
         private const string ErrorTypeEmpty = "Type can not be empty";
         private const string Custom = "custom";
 

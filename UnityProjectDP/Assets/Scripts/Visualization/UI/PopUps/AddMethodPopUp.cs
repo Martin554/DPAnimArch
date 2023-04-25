@@ -12,27 +12,16 @@ namespace Visualization.UI.PopUps
     public class AddMethodPopUp : AbstractMethodPopUp
     {
         private const string ErrorMethodNameExists = "Method with the same name already exists";
-        private const string Void = "void";
 
         private new void Awake()
         {
             base.Awake();
-            _callee = "Add";
-            dropdown.onValueChanged.AddListener(delegate
-            {
-                if (dropdown.options[dropdown.value].text == Void)
-                {
-                    options.transform.gameObject.SetActive(false);
-                    isArray.transform.gameObject.SetActive(false);
-                    isArrayText.transform.gameObject.SetActive(false);
-                }
-                else
-                {
-                    options.transform.gameObject.SetActive(true);
-                    isArray.transform.gameObject.SetActive(true);
-                    isArrayText.transform.gameObject.SetActive(true);
-                }
-            });
+        }
+
+        public override void ActivateCreation()
+        {
+            base.ActivateCreation();
+            UIEditorManager.Instance.ParameterPopUpCallee = "Add";
         }
 
         public override void Confirmation()

@@ -11,30 +11,11 @@ namespace Visualization.UI.PopUps
 {
     public class EditMethodPopUp : AbstractMethodPopUp
     {
-        private const string ErrorMethodNameExists = "Method with the same name already exists";
-        private const string Void = "void";
-
         private Method _formerMethod;
 
         private new void Awake()
         {
             base.Awake();
-            _callee = "Edit";
-            dropdown.onValueChanged.AddListener(delegate
-            {
-                if (dropdown.options[dropdown.value].text == Void)
-                {
-                    options.transform.gameObject.SetActive(false);
-                    isArray.transform.gameObject.SetActive(false);
-                    isArrayText.transform.gameObject.SetActive(false);
-                }
-                else
-                {
-                    options.transform.gameObject.SetActive(true);
-                    isArray.transform.gameObject.SetActive(true);
-                    isArrayText.transform.gameObject.SetActive(true);
-                }
-            });
         }
 
         private static string GetMethodNameFromString(string str)
@@ -67,6 +48,7 @@ namespace Visualization.UI.PopUps
         public void ActivateCreation(TMP_Text classTxt, TMP_Text methodTxt)
         {
             base.ActivateCreation(classTxt);
+            UIEditorManager.Instance.ParameterPopUpCallee = "Edit";
             var formerMethodName = GetMethodNameFromString(methodTxt.text);
             if (isNetworkDisabledOrIsServer())
             {
@@ -115,33 +97,6 @@ namespace Visualization.UI.PopUps
             _parameters = new List<string>();
             parameterContent.DetachChildren();
             _formerMethod = null;
-        }
-
-        public bool ArgExists(string parameter)
-        {
-            return _parameters.Any(x => x == parameter);
-        }
-
-        public void AddArg(string parameter)
-        {
-            _parameters.Add(parameter);
-            var instance = Instantiate(DiagramPool.Instance.parameterMethodPrefab, parameterContent, false);
-            instance.name = parameter;
-            instance.transform.Find("ParameterText").GetComponent<TextMeshProUGUI>().text += parameter;
-        }
-
-        public void EditArg(string formerParam, string newParam)
-        {
-            var index = _parameters.FindIndex(x => x == formerParam);
-            _parameters[index] = newParam;
-            parameterContent.GetComponentsInChildren<ParameterManager>()
-                .First(x => x.parameterTxt.text == formerParam).parameterTxt.text = newParam;
-        }
-
-        public void RemoveArg(string parameter)
-        {
-            _parameters.RemoveAll(x => Equals(x, parameter));
-            Destroy(parameterContent.Find(parameter).transform.gameObject);
         }
     }
 }
