@@ -8,7 +8,6 @@ namespace Visualization.UI.PopUps
         
         public TMP_Text confirm;
 
-
         public override void Confirmation()
         {
             if (inp.text == "")
@@ -23,16 +22,17 @@ namespace Visualization.UI.PopUps
                 DisplayError(ErrorParameterNameExists);
                 return;
             }
-
-            UIEditorManager.Instance.addMethodPopUp.AddArg(parameter);
-
+            if (_callee == "Add")
+                UIEditorManager.Instance.addMethodPopUp.AddArg(parameter);
+            else
+                UIEditorManager.Instance.editMethodPopUp.AddArg(parameter);
             Deactivate();
         }
 
         public override void Deactivate()
         {
             base.Deactivate();
-            UIEditorManager.Instance.addMethodPopUp.gameObject.SetActive(true);
+            UIEditorManager.Instance.editMethodPopUp.gameObject.SetActive(true);
         }
     }
 }

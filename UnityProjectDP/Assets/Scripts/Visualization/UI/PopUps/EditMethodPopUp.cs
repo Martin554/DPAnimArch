@@ -9,21 +9,17 @@ using Visualization.UI.ClassComponentsManagers;
 
 namespace Visualization.UI.PopUps
 {
-    public class EditMethodPopUp : AbstractTypePopUp
+    public class EditMethodPopUp : AbstractMethodPopUp
     {
         private const string ErrorMethodNameExists = "Method with the same name already exists";
         private const string Void = "void";
 
-        public TMP_Text confirm;
-        [SerializeField] private Transform parameterContent;
         private Method _formerMethod;
-        private List<string> _parameters = new();
-        public TMP_Text options;
-        public TMP_Text isArrayText;
 
         private new void Awake()
         {
             base.Awake();
+            _callee = "Edit";
             dropdown.onValueChanged.AddListener(delegate
             {
                 if (dropdown.options[dropdown.value].text == Void)
@@ -52,8 +48,20 @@ namespace Visualization.UI.PopUps
         private static string GetMethodTypeFromString(string str)
         {
             var parts = str.Split(new[] { ": ", "\n" }, StringSplitOptions.None);
-
             return parts[1];
+        }
+
+        private static List<string> GetArgumentsFromString(string str)
+        {
+            var parts = str.Split(new[] { ": ", "\n" }, StringSplitOptions.None);
+            var nameAndArguments = parts[0].Split(new[] { "(", ")" }, StringSplitOptions.None);
+            if (nameAndArguments.Length > 1 && nameAndArguments[1] != "")
+            {
+                nameAndArguments[1].Replace(" ", "");
+                var arguments = nameAndArguments[1].Split(new[] { "," }, StringSplitOptions.None);
+                return arguments.ToList();
+            }
+            return new List<string>();
         }
 
         public void ActivateCreation(TMP_Text classTxt, TMP_Text methodTxt)
@@ -69,7 +77,8 @@ namespace Visualization.UI.PopUps
                 _formerMethod = new Method()
                 {
                     Name = formerMethodName,
-                    ReturnValue = GetMethodTypeFromString(methodTxt.text)
+                    ReturnValue = GetMethodTypeFromString(methodTxt.text),
+                    arguments = GetArgumentsFromString(methodTxt.text)
                 };
             }
 
@@ -94,25 +103,8 @@ namespace Visualization.UI.PopUps
             };
 
             if (isNetworkDisabledOrIsServer())
-            {
-                var methodInDiagram = DiagramPool.Instance.ClassDiagram.FindMethodByName(className.text, newMethod.Name);
-                if (methodInDiagram != null && !_formerMethod.Equals(methodInDiagram))
-                {
-                    DisplayError(ErrorMethodNameExists);
-                    return;
-                }
-
                 newMethod.Id = _formerMethod.Id;
-            }
-            else
-            {
-                var networkClassId = findClassClient(className.text);
-                if (findMethodClient(networkClassId) != null)
-                {
-                    DisplayError(ErrorMethodNameExists);
-                    return;
-                }
-            }
+
             UIEditorManager.Instance.mainEditor.UpdateMethod(className.text, _formerMethod.Name, newMethod);
             Deactivate();
         }

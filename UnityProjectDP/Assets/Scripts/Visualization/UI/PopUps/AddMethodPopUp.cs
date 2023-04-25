@@ -14,13 +14,10 @@ namespace Visualization.UI.PopUps
         private const string ErrorMethodNameExists = "Method with the same name already exists";
         private const string Void = "void";
 
-        public TMP_Text confirm;
-        public TMP_Text options;
-        public TMP_Text isArrayText;
-
         private new void Awake()
         {
             base.Awake();
+            _callee = "Add";
             dropdown.onValueChanged.AddListener(delegate
             {
                 if (dropdown.options[dropdown.value].text == Void)
@@ -71,7 +68,7 @@ namespace Visualization.UI.PopUps
                     return;
                 }
 
-                if (findMethodClient(classNetworkId) != null)
+                if (findMethodClient(classNetworkId, newMethod.Name) != null)
                 {
                     DisplayError(ErrorMethodNameExists);
                     return;

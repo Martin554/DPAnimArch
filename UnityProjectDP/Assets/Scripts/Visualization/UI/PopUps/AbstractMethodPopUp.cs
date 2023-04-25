@@ -9,6 +9,11 @@ namespace Visualization.UI.PopUps
 {
     public class AbstractMethodPopUp : AbstractTypePopUp
     {
+
+        public TMP_Text confirm;
+        public TMP_Text options;
+        public TMP_Text isArrayText;
+
         [SerializeField] protected Transform parameterContent;
         protected List<string> _parameters = new();
 

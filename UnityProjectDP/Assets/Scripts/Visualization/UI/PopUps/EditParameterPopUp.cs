@@ -34,7 +34,10 @@ namespace Visualization.UI.PopUps
                 return;
             }
 
-            UIEditorManager.Instance.editMethodPopUp.EditArg(_formerParam, parameter);
+            if (_callee == "Add")
+                UIEditorManager.Instance.addMethodPopUp.EditArg(_formerParam, parameter);
+            else
+                UIEditorManager.Instance.editMethodPopUp.EditArg(_formerParam, parameter);
             Deactivate();
         }
 

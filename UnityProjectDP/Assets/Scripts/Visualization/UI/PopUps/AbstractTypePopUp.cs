@@ -13,9 +13,11 @@ namespace Visualization.UI.PopUps
 {
     public abstract class AbstractTypePopUp : AbstractClassPopUp
     {
+        protected string _callee;
+
         private const string ErrorTypeEmpty = "Type can not be empty";
         private const string Custom = "custom";
-        
+
         public TMP_Dropdown dropdown;
         public TMP_Text customType;
         public TMP_InputField customTypeField;
@@ -33,7 +35,7 @@ namespace Visualization.UI.PopUps
                 .Find(inp.text);
         }
 
-        protected Transform findMethodClient(ulong classNetworkId)
+        protected Transform findMethodClient(ulong classNetworkId, string name)
         {
             var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
             return objects[classNetworkId]
@@ -41,7 +43,7 @@ namespace Visualization.UI.PopUps
                 .Find("Background")
                 .Find("Methods")
                 .Find("MethodLayoutGroup")
-                .Find(inp.text);
+                .Find(name);
         }
 
         private IEnumerable<string> clientClassList()
@@ -61,7 +63,7 @@ namespace Visualization.UI.PopUps
         protected new void Awake()
         {
             base.Awake();
-            
+
             dropdown.onValueChanged.AddListener(delegate
             {
                 if (dropdown.options[dropdown.value].text == Custom)
