@@ -20,6 +20,12 @@ namespace Visualization.UI.PopUps
                 return;
             }
 
+            var newAttribute = new Attribute
+            {
+                Name = inp.text,
+                Type = GetType()
+            };
+
             if (isNetworkDisabledOrIsServer())
             {
                 if (DiagramPool.Instance.ClassDiagram.FindAttributeByName(className.text, inp.text) != null)
@@ -27,6 +33,7 @@ namespace Visualization.UI.PopUps
                     DisplayError(ErrorAttributeNameExists);
                     return;
                 }
+                newAttribute.Id = Guid.NewGuid().ToString();
             }
             else
             {
@@ -43,13 +50,6 @@ namespace Visualization.UI.PopUps
                     return;
                 }
             }
-
-            var newAttribute = new Attribute
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = inp.text,
-                Type = GetType()
-            };
 
             UIEditorManager.Instance.mainEditor.AddAttribute(className.text, newAttribute);
             Deactivate();

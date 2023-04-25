@@ -33,6 +33,17 @@ namespace Visualization.UI.PopUps
                 .Find(inp.text);
         }
 
+        protected Transform findMethodClient(ulong classNetworkId)
+        {
+            var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+            return objects[classNetworkId]
+                .transform
+                .Find("Background")
+                .Find("Methods")
+                .Find("MethodLayoutGroup")
+                .Find(inp.text);
+        }
+
         private IEnumerable<string> clientClassList()
         {
             var classes = new List<string>();
@@ -46,7 +57,6 @@ namespace Visualization.UI.PopUps
 
             return classes;
         }
-
 
         protected new void Awake()
         {

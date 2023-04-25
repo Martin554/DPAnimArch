@@ -183,13 +183,10 @@ namespace Visualization.ClassDiagram.Editors
 
             if (DiagramPool.Instance.ClassDiagram.FindMethodByName(targetClass, method.Name) != null)
             {
-                //TODO: david skontrolovat - vetva kedy je diagram z loadera?
-                // yes toto je vetva co je z loadera
                 CDEditor.AddMethod(classInDiagram, method);
                 _visualEditor.AddMethod(classInDiagram, method);
                 return;
             }
-
 
             ParsedEditor.AddMethod(classInDiagram, method);
             CDEditor.AddMethod(classInDiagram, method);
@@ -296,7 +293,6 @@ namespace Visualization.ClassDiagram.Editors
                 DiagramPool.Instance.ClassDiagram.Classes.Clear();
             }
 
-
             // Get rid of already rendered relations in diagram.
             if (DiagramPool.Instance.ClassDiagram.Relations != null)
             {
@@ -305,7 +301,6 @@ namespace Visualization.ClassDiagram.Editors
 
                 DiagramPool.Instance.ClassDiagram.Relations.Clear();
             }
-
 
             if (DiagramPool.Instance.ClassDiagram.graph != null)
             {

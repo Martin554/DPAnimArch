@@ -9,7 +9,7 @@ using Visualization.UI.ClassComponentsManagers;
 
 namespace Visualization.UI.PopUps
 {
-    public class MethodPopUp : AbstractTypePopUp
+    public class EditMethodPopUp : AbstractTypePopUp
     {
         private const string ErrorMethodNameExists = "Method with the same name already exists";
         private const string Void = "void";
@@ -41,13 +41,6 @@ namespace Visualization.UI.PopUps
             });
         }
 
-        public override void ActivateCreation(TMP_Text classTxt)
-        {
-            base.ActivateCreation(classTxt);
-            confirm.text = "Add";
-        }
-
-
         private static string GetMethodNameFromString(string str)
         {
             var parts = str.Split(new[] { ": ", "\n" }, StringSplitOptions.None);
@@ -56,21 +49,34 @@ namespace Visualization.UI.PopUps
             return nameAndArguments[0];
         }
 
+        private static string GetMethodTypeFromString(string str)
+        {
+            var parts = str.Split(new[] { ": ", "\n" }, StringSplitOptions.None);
+
+            return parts[1];
+        }
 
         public void ActivateCreation(TMP_Text classTxt, TMP_Text methodTxt)
         {
-            ActivateCreation(classTxt);
+            base.ActivateCreation(classTxt);
+            var formerMethodName = GetMethodNameFromString(methodTxt.text);
+            if (isNetworkDisabledOrIsServer())
+            {
+                _formerMethod = DiagramPool.Instance.ClassDiagram.FindMethodByName(className.text, formerMethodName);
+            }
+            else
+            {
+                _formerMethod = new Method()
+                {
+                    Name = formerMethodName,
+                    ReturnValue = GetMethodTypeFromString(methodTxt.text)
+                };
+            }
 
-            var formerMethod = DiagramPool.Instance.ClassDiagram.FindMethodByName(className.text,
-                GetMethodNameFromString(methodTxt.text));
-            inp.text = formerMethod.Name;
-
-            SetType(formerMethod.ReturnValue);
-            formerMethod.arguments.ForEach(AddArg);
-            _formerMethod = formerMethod;
-            confirm.text = "Edit";
+            inp.text = _formerMethod.Name;
+            SetType(_formerMethod.ReturnValue);
+            _formerMethod.arguments.ForEach(AddArg);
         }
-
 
         public override void Confirmation()
         {
@@ -86,21 +92,10 @@ namespace Visualization.UI.PopUps
                 ReturnValue = GetType(),
                 arguments = _parameters
             };
-            if (_formerMethod == null)
-            {
-                if (DiagramPool.Instance.ClassDiagram.FindMethodByName(className.text, newMethod.Name) != null)
-                {
-                    DisplayError(ErrorMethodNameExists);
-                    return;
-                }
 
-                newMethod.Id = Guid.NewGuid().ToString();
-                UIEditorManager.Instance.mainEditor.AddMethod(className.text, newMethod);
-            }
-            else
+            if (isNetworkDisabledOrIsServer())
             {
-                var methodInDiagram =
-                    DiagramPool.Instance.ClassDiagram.FindMethodByName(className.text, newMethod.Name);
+                var methodInDiagram = DiagramPool.Instance.ClassDiagram.FindMethodByName(className.text, newMethod.Name);
                 if (methodInDiagram != null && !_formerMethod.Equals(methodInDiagram))
                 {
                     DisplayError(ErrorMethodNameExists);
@@ -108,9 +103,17 @@ namespace Visualization.UI.PopUps
                 }
 
                 newMethod.Id = _formerMethod.Id;
-                UIEditorManager.Instance.mainEditor.UpdateMethod(className.text, _formerMethod.Name, newMethod);
             }
-
+            else
+            {
+                var networkClassId = findClassClient(className.text);
+                if (findMethodClient(networkClassId) != null)
+                {
+                    DisplayError(ErrorMethodNameExists);
+                    return;
+                }
+            }
+            UIEditorManager.Instance.mainEditor.UpdateMethod(className.text, _formerMethod.Name, newMethod);
             Deactivate();
         }
 

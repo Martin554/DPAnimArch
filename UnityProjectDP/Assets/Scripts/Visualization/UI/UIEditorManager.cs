@@ -18,18 +18,23 @@ namespace Visualization.UI
         private IClassDiagramBuilder _classDiagramBuilder;
         public MainEditor mainEditor;
 
+        public AbstractMethodPopUp methodPopUp;
+
         [SerializeField]
         public bool NetworkEnabled;
 
         public AddAttributePopUp addAttributePopUp;
         public RenameAttributePopUp renameAttributePopUp;
 
-        public MethodPopUp methodPopUp;
+        public AddMethodPopUp addMethodPopUp;
+        public EditMethodPopUp editMethodPopUp;
 
         public AddClassPopUp addClassPopUp;
         public RenameClassPopUp renameClassPopUp;
 
-        public ParameterPopUp parameterPopUp;
+        public AddParameterPopUp addParameterPopUp;
+        public EditParameterPopUp editParameterPopUp;
+
         public ConfirmPopUp confirmPopUp;
         public ErrorPopUp errorPopUp;
 

@@ -10,7 +10,7 @@ namespace Visualization.UI.ClassComponentsManagers
 
         public void OpenMethodEditPopUp()
         {
-            UIEditorManager.Instance.methodPopUp.ActivateCreation(classTxt, methodTxt);
+            UIEditorManager.Instance.editMethodPopUp.ActivateCreation(classTxt, methodTxt);
         }
 
         public void DeleteMethod()

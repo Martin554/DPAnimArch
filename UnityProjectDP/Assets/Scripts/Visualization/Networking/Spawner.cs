@@ -110,7 +110,8 @@ namespace Visualization.Networking
             var attribute = new Attribute
             {
                 Name = attributeName,
-                Type = type
+                Type = type,
+                Id = Guid.NewGuid().ToString()
             };
             UIEditorManager.Instance.mainEditor.AddAttribute(targetClass, attribute);
         }
@@ -147,8 +148,9 @@ namespace Visualization.Networking
             {
                 Name = methodName,
                 ReturnValue = methodReturnValue,
-                arguments = methodArguments.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList() ?? new()
-            };
+                arguments = methodArguments.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList() ?? new(),
+                Id = Guid.NewGuid().ToString()
+        };
             UIEditorManager.Instance.mainEditor.AddMethod(targetClass, newMethod);
         }
 
