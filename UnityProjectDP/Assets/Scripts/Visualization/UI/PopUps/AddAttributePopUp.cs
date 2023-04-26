@@ -26,7 +26,7 @@ namespace Visualization.UI.PopUps
                 Type = GetType()
             };
 
-            if (isNetworkDisabledOrIsServer())
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
             {
                 if (DiagramPool.Instance.ClassDiagram.FindAttributeByName(className.text, inp.text) != null)
                 {

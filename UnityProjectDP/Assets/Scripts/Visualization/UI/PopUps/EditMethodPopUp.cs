@@ -50,7 +50,7 @@ namespace Visualization.UI.PopUps
             base.ActivateCreation(classTxt);
             UIEditorManager.Instance.ParameterPopUpCallee = "Edit";
             var formerMethodName = GetMethodNameFromString(methodTxt.text);
-            if (isNetworkDisabledOrIsServer())
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
             {
                 _formerMethod = DiagramPool.Instance.ClassDiagram.FindMethodByName(className.text, formerMethodName);
             }
@@ -84,7 +84,7 @@ namespace Visualization.UI.PopUps
                 arguments = _parameters
             };
 
-            if (isNetworkDisabledOrIsServer())
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
                 newMethod.Id = _formerMethod.Id;
 
             UIEditorManager.Instance.mainEditor.UpdateMethod(className.text, _formerMethod.Name, newMethod);

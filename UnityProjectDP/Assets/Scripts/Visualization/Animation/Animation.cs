@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Assets.Scripts.AnimationControl.OAL;
 using OALProgramControl;
 using UMSAGL.Scripts;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI.Extensions;
 using Visualization.ClassDiagram;
@@ -394,46 +395,45 @@ namespace Visualization.Animation
             return lf.StartCoroutine(lf.AnimateFlow(edge.GetComponent<UILineRenderer>().Points, flip));
         }
 
+        private GameObject classGameObject(string className)
+        {
+            if (!UI.UIEditorManager.Instance.isNetworkDisabledOrIsServer())
+            {
+                var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+                var values = objects.Values;
+                foreach (var value in values)
+                {
+                    if (value.name == className)
+                        return value.gameObject;
+                }
+            }
+            return classDiagram.FindNode(className);
+        }
+
+        private void HighlightBackground(BackgroundHighlighter backgroundHighlighter, bool isToBeHighlighted)
+        {
+            if (isToBeHighlighted)
+                backgroundHighlighter.HighlightBackground();
+            else
+                backgroundHighlighter.UnhighlightBackground();
+        }
+
         //Method used to Highlight/Unhighlight single class by name, depending on bool value of argument 
         public void HighlightClass(string className, bool isToBeHighlighted, long instanceID = -1)
         {
-            GameObject node = classDiagram.FindNode(className);
+            GameObject node = classGameObject(className);
 
-            BackgroundHighlighter bh = null;
+            BackgroundHighlighter backgroundHighlighter = null;
             if (node != null)
             {
-                bh = node.GetComponent<BackgroundHighlighter>();
+                backgroundHighlighter = node.GetComponent<BackgroundHighlighter>();
             }
             else
             {
                 Debug.Log("Node " + className + " not found");
+                return;
             }
-
-            if (bh != null)
-            {
-                if (isToBeHighlighted)
-                {
-                    bh.HighlightBackground();
-                    //Debug.Log("Filip, classa: " + className); //Filip
-                }
-                else
-                {
-                    bh.UnhighlightBackground();
-                }
-            }
-            else
-            {
-                Debug.Log("Highlighter component not found");
-            }
-
-            // if (instanceID == -1)
-            // {
-            //     HighlightObjects(className, isToBeHighlighted);
-            // }
-            // else
-            // {
-            //     HighlightObject(instanceID, isToBeHighlighted);
-            // }
+            HighlightBackground(backgroundHighlighter, isToBeHighlighted);
         }
 
         public void HighlightObjects(string className, bool isToBeHighlighted)
@@ -463,60 +463,39 @@ namespace Visualization.Animation
         public void HighlightObject(long objectUniqueId, bool isToBeHighlighted)
         {
             GameObject node = objectDiagram.FindByID(objectUniqueId).VisualObject;
-            BackgroundHighlighter bh = null;
+            BackgroundHighlighter backgroundHighlighter = null;
             if (node != null)
             {
-                bh = node.GetComponent<BackgroundHighlighter>();
+                backgroundHighlighter = node.GetComponent<BackgroundHighlighter>();
             }
             else
             {
                 Debug.Log("Node " + objectUniqueId + " not found");
+                return;
             }
 
-            if (bh != null)
-            {
-                if (isToBeHighlighted)
-                {
-                    bh.HighlightBackground();
-                }
-                else
-                {
-                    bh.UnhighlightBackground();
-                }
-            }
-            else
-            {
-                Debug.Log("Highlighter component not found");
-            }
+            HighlightBackground(backgroundHighlighter, isToBeHighlighted);
         }
 
         //Method used to Highlight/Unhighlight single method by name, depending on bool value of argument 
-    public void HighlightMethod(string className, string methodName, bool isToBeHighlighted, long instanceId = -1)
+        public void HighlightMethod(string className, string methodName, bool isToBeHighlighted, long instanceId = -1)
         {
-            var node = classDiagram.FindNode(className);
+            GameObject node = classDiagram.FindNode(className);
             if (node)
             {
                 ClassTextHighligter classTextHighligter = node.GetComponent<ClassTextHighligter>();
                 if (classTextHighligter)
                 {
                     if (isToBeHighlighted)
-                    {
                         classTextHighligter.HighlightClassLine(methodName);
-                    }
                     else
-                    {
                         classTextHighligter.UnhighlightClassLine(methodName);
-                    }
                 }
                 else
-                {
                     Debug.Log("TextHighlighter component not found");
-                }
             }
             else
-            {
                 Debug.Log("Node " + className + " not found");
-            }
         }
 
         private void HighlightInstancesMethod(string className, string methodName, bool isToBeHighlighted)
@@ -535,13 +514,9 @@ namespace Visualization.Animation
             if (textHighlighter != null)
             {
                 if (isToBeHighlighted)
-                {
                     textHighlighter.HighlightObjectLine(methodName);
-                }
                 else
-                {
                     textHighlighter.UnHighlightObjectLine(methodName);
-                }
             }
         }
 

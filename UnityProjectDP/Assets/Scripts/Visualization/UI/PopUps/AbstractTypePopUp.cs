@@ -124,7 +124,7 @@ namespace Visualization.UI.PopUps
         private void UpdateDropdown()
         {
             IEnumerable<string> classNames = new List<string>();
-            if (isNetworkDisabledOrIsServer())
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
                 classNames = DiagramPool.Instance.ClassDiagram.GetClassList().Select(x => x.Name);
             else
                 classNames = clientClassList();

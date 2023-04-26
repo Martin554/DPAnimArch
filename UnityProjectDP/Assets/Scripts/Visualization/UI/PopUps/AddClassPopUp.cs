@@ -20,7 +20,7 @@ namespace Visualization.UI.PopUps
 
             var inpClassName = inp.text.Replace(" ", "_");
             var newClass = new Class(inpClassName, Guid.NewGuid().ToString());
-            if (isNetworkDisabledOrIsServer())
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
             {
                 if (DiagramPool.Instance.ClassDiagram.FindClassByName(newClass.Name) != null)
                 {

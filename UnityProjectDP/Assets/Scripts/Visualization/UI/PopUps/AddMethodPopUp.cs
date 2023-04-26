@@ -39,7 +39,7 @@ namespace Visualization.UI.PopUps
                 arguments = _parameters
             };
 
-            if (isNetworkDisabledOrIsServer())
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
             {
                 if (DiagramPool.Instance.ClassDiagram.FindMethodByName(className.text, newMethod.Name) != null)
                 {

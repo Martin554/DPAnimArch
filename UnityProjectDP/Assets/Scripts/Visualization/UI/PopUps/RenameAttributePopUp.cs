@@ -35,7 +35,7 @@ namespace Visualization.UI.PopUps
                 return;
             }
             var newAttribute = new Attribute();
-            if (isNetworkDisabledOrIsServer())
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
             {
                 var attributeInDiagram = DiagramPool.Instance.ClassDiagram.FindAttributeByName(className.text, inp.text);
                 if (attributeInDiagram != null && !_formerAttribute.Equals(attributeInDiagram))

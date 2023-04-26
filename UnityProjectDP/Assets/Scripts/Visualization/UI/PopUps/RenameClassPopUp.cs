@@ -15,7 +15,7 @@ namespace Visualization.UI.PopUps
         {
             base.ActivateCreation(classTxt);
             inp.text = classTxt.text;
-            if (isNetworkDisabledOrIsServer())
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
             {
                 _formerClass = DiagramPool.Instance.ClassDiagram.FindClassByName(inp.text).ParsedClass;
             }
@@ -34,7 +34,7 @@ namespace Visualization.UI.PopUps
             }
 
             var newClassName = inp.text.Replace(" ", "_");
-            if (isNetworkDisabledOrIsServer())
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
             {
                 var classInDiagram = DiagramPool.Instance.ClassDiagram.FindClassByName(newClassName);
                 if (classInDiagram != null && !_formerClass.Equals(classInDiagram.ParsedClass))

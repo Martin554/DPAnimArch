@@ -1,5 +1,6 @@
 ﻿using System;
 using AnimArch.Extensions;
+using Unity.Netcode;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,6 +40,11 @@ namespace Visualization.UI
 
         public ConfirmPopUp confirmPopUp;
         public ErrorPopUp errorPopUp;
+
+        public bool isNetworkDisabledOrIsServer()
+        {
+            return (Instance.NetworkEnabled && NetworkManager.Singleton.IsServer) || !Instance.NetworkEnabled;
+        }
 
         public void InitializeCreation()
         {

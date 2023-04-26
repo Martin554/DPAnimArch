@@ -26,11 +26,6 @@ namespace Visualization.UI.PopUps
             return 0;
         }
 
-        protected bool isNetworkDisabledOrIsServer()
-        {
-            return (UIEditorManager.Instance.NetworkEnabled && NetworkManager.Singleton.IsServer) || !UIEditorManager.Instance.NetworkEnabled;
-        }
-
         private static void SetButtonsActive(bool active)
         {
             if (DiagramPool.Instance.ClassDiagram.graph != null)
