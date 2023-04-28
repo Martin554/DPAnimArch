@@ -1,6 +1,7 @@
 using UMSAGL.Scripts;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 using Visualization.Networking;
 using Visualization.UI;
 
@@ -18,6 +19,7 @@ namespace Visualization.ClassDiagram
 
             DiagramPool.Instance.ClassDiagram.graph = graphGo.GetComponent<Graph>();
             DiagramPool.Instance.ClassDiagram.graph.nodePrefab = DiagramPool.Instance.networkClassPrefab;
+            GameObject.Find("EditBtn").GetComponentInChildren<Button>().interactable = true;
         }
 
         public override void MakeNetworkedGraph()
