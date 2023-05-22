@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Linq;
 using Microsoft.Msagl.Core.Layout;
 using UnityEngine;
 using UnityEngine.UI;
@@ -119,8 +120,11 @@ namespace UMSAGL.Scripts
                 {
                     capTransform = Instantiate(capPrefab, transform).transform;
                     capTransform.name = capName;
+                    if (capTransform.transform.childCount > 0)
+                        StartCoroutine(QuickFix(capTransform.transform.GetChild(0).gameObject));
                     capTransform.GetComponentInChildren<UIPolygon>()?.SetAllDirty();
                     Canvas.ForceUpdateCanvases();
+                    capTransform.gameObject.SetActive(true);
                 }
 
                 var angle = CapAngle(dirPoint, targetPoint);
@@ -132,6 +136,15 @@ namespace UMSAGL.Scripts
                 Destroy(capTransform.gameObject);
                 Canvas.ForceUpdateCanvases();
             }
+        }
+
+        //Fix used to minimize relation displaying bug
+        private IEnumerator QuickFix(GameObject g)
+        {
+            yield return new WaitForSeconds(0.05f);
+            g.SetActive(false);
+            yield return new WaitForSeconds(0.05f);
+            g.SetActive(true);
         }
 
         private void UpdateCaps()
