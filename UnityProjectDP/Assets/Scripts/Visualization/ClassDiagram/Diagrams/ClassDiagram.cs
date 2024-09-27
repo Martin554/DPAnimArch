@@ -1,10 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using OALProgramControl;
 using AnimArch.Extensions;
+using OALProgramControl;
+using UMSAGL.Scripts;
+using UnityEngine;
+using Visualization.ClassDiagram.ClassComponents;
+using Visualization.ClassDiagram.ComponentsInDiagram;
+using Visualization.ClassDiagram.Relations;
+using Visualization.UI;
 
-namespace AnimArch.Visualization.Diagrams
+namespace Visualization.ClassDiagram.Diagrams
 {
     public class ClassDiagram : Diagram
     {
@@ -16,7 +21,7 @@ namespace AnimArch.Visualization.Diagrams
         private void Awake()
         {
             DiagramPool.Instance.ClassDiagram = this;
-            MainEditor.ClearDiagram();
+            UIEditorManager.Instance.mainEditor.ClearDiagram();
         }
 
         public ClassInDiagram FindClassByName(string className)
@@ -104,6 +109,14 @@ namespace AnimArch.Visualization.Diagrams
                 .Where(relation => string.Equals(relationName, relation.ParsedRelation.OALName))
                 .FirstOrCustomDefault(
                     relationInDiagram => relationInDiagram.ParsedRelation.FromClass, "");
+        }
+        public RelationInDiagram FindRelation(string fromClass, string toClass, string type)
+        {
+            return Relations
+                .FirstOrDefault(relation => 
+                    ((relation.RelationInfo.FromClass == fromClass && relation.RelationInfo.ToClass == toClass) ||
+                    (relation.RelationInfo.FromClass == toClass && relation.RelationInfo.ToClass == fromClass)) &&
+                    relation.ParsedRelation.PropertiesEaType == type);
         }
 
 

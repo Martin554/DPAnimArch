@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
+using Visualization.ClassDiagram.ClassComponents;
+using Visualization.ClassDiagram.ComponentsInDiagram;
 
-namespace AnimArch.Visualization.Diagrams
+namespace Visualization.ClassDiagram.Editors
 {
     public static class ParsedEditor
     {
         public static Class UpdateNodeGeometry(Class newClass, GameObject classGo)
         {
-            if (newClass.Left != 0)
-                return newClass;
             var position = classGo.transform.localPosition;
             newClass.Left = position.x / 2.5f;
             newClass.Top = position.y / 2.5f;

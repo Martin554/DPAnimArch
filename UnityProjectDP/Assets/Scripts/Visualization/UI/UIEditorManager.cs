@@ -1,52 +1,81 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using AnimArch.Extensions;
-using AnimArch.Visualization.Diagrams;
-using Networking;
+using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Visualization.ClassDiagram;
+using Visualization.ClassDiagram.Editors;
+using Visualization.ClassDiagram.Relations;
+using Visualization.UI.PopUps;
 
-namespace AnimArch.Visualization.UI
+namespace Visualization.UI
 {
     public class UIEditorManager : Singleton<UIEditorManager>
     {
         public bool active;
         private GameObject _fromClass;
         private string _relType;
+        private IClassDiagramBuilder _classDiagramBuilder;
+        public MainEditor mainEditor;
 
-        public AttributePopUp attributePopUp;
-        public MethodPopUp methodPopUp;
-        public ClassPopUp classPopUp;
-        public ParameterPopUp parameterPopUp;
+        public AbstractMethodPopUp methodPopUp;
+
+        public string ParameterPopUpCallee = "";
+
+        [SerializeField]
+        public bool NetworkEnabled;
+
+        public AddAttributePopUp addAttributePopUp;
+        public RenameAttributePopUp renameAttributePopUp;
+
+        public AddMethodPopUp addMethodPopUp;
+        public EditMethodPopUp editMethodPopUp;
+
+        public AddParameterPopUp addParameterPopUp;
+        public EditParameterPopUp editParameterPopUp;
+
+        public AddClassPopUp addClassPopUp;
+        public RenameClassPopUp renameClassPopUp;
+
         public ConfirmPopUp confirmPopUp;
+        public ErrorPopUp errorPopUp;
 
-
-        private static void InitializeCreation()
+        public bool isNetworkDisabledOrIsServer()
         {
-            if (DiagramPool.Instance.ClassDiagram.graph) return;
+            return (Instance.NetworkEnabled && NetworkManager.Singleton.IsServer) || !Instance.NetworkEnabled;
+        }
 
-            ClassDiagramBuilder.CreateGraph();
+        public void InitializeCreation()
+        {
+            Debug.Assert(_classDiagramBuilder != null);
+            if (DiagramPool.Instance.ClassDiagram.graph == null)
+            {
+                _classDiagramBuilder.CreateGraph();
+                _classDiagramBuilder.MakeNetworkedGraph();
+            }
         }
 
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
+            _classDiagramBuilder = ClassDiagramBuilderFactory.Create();
+            mainEditor = MainEditorFactory.Create(_classDiagramBuilder.visualEditor);
         }
 
         public void CreateNewDiagram()
         {
-            MainEditor.ClearDiagram();
+            mainEditor.ClearDiagram();
             StartEditing();
         }
         
         public void StartEditing()
         {
-            if (DiagramPool.Instance.ClassDiagram.graph != null)
-                DiagramPool.Instance.ClassDiagram.graph.GetComponentsInChildren<Button>(includeInactive: true)
-                    .ForEach(x => x.gameObject.SetActive(true));
-
-            InitializeCreation();
-
+            if (DiagramPool.Instance.ClassDiagram.graph == null)
+                InitializeCreation();
+            Debug.Assert(DiagramPool.Instance.ClassDiagram.graph);
+            DiagramPool.Instance.ClassDiagram.graph.GetComponentsInChildren<Button>(includeInactive: true)
+                .ForEach(x => x.gameObject.SetActive(true));
             active = true;
         }
 
@@ -58,7 +87,6 @@ namespace AnimArch.Visualization.UI
             DiagramPool.Instance.ClassDiagram.graph.GetComponentsInChildren<Button>()
                 .ForEach(x => x.gameObject.SetActive(false));
         }
-
 
         public void StartSelection(string type)
         {
@@ -72,13 +100,13 @@ namespace AnimArch.Visualization.UI
                 return;
             if (selected == _fromClass)
             {
-                Animating.Animation.Instance.HighlightClass(_fromClass.name, false);
+                Animation.Animation.Instance.HighlightClass(_fromClass.name, false);
                 _fromClass = null;
             }
             else if (_fromClass == null)
             {
                 _fromClass = selected;
-                Animating.Animation.Instance.HighlightClass(_fromClass.name, true);
+                Animation.Animation.Instance.HighlightClass(_fromClass.name, true);
             }
             else
             {
@@ -86,31 +114,38 @@ namespace AnimArch.Visualization.UI
             }
         }
 
-
-        private void EndSelection()
+        public void EndSelection()
         {
-            Animating.Animation.Instance.HighlightClass(_fromClass.name, false);
+            Animation.Animation.Instance.HighlightClass(_fromClass.name, false);
             _relType = null;
             _fromClass = null;
-            DiagramPool.Instance.ClassDiagram.graph.UpdateGraph();
             MenuManager.Instance.isSelectingNode = false;
             GameObject.Find("SelectionPanel").SetActive(false);
         }
 
         private void AddRelation(GameObject toClass)
         {
-            if (_fromClass == null || toClass == null) return;
+            if (_fromClass == null || toClass == null)
+                return;
             var type = _relType.Split();
+            var relType = type.Length > 1 ? type[1] : type[0];
 
+            if (DiagramPool.Instance.ClassDiagram.FindRelation(_fromClass.name, toClass.name, relType) != null)
+            {
+                errorPopUp.ActivateCreation();
+                return;
+            }
+            
             var relation = new Relation
             {
+                ConnectorXmiId = Guid.NewGuid().ToString(),
                 SourceModelName = _fromClass.name,
                 TargetModelName = toClass.name,
-                PropertiesEaType = type.Length > 1 ? type[1] : type[0],
+                PropertiesEaType = relType,
                 PropertiesDirection = type.Length > 1 ? "none" : "Source -> Destination"
             };
-            
-            MainEditor.CreateRelation(relation, MainEditor.Source.Editor);
+
+            mainEditor.CreateRelation(relation);
             EndSelection();
         }
     }

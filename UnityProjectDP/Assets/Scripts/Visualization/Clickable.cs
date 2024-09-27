@@ -1,11 +1,12 @@
-using AnimArch.Visualization.Diagrams;
-using AnimArch.Visualization.UI;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using Visualization.ClassDiagram;
+using Visualization.ClassDiagram.Editors;
+using Visualization.UI;
 
-namespace AnimArch.Visualization
+namespace Visualization
 {
     [Serializable]
     public class GameObjectEvent : UnityEvent<GameObject>
@@ -16,17 +17,16 @@ namespace AnimArch.Visualization
     {
         public GameObjectEvent triggerHighlighAction;
         public GameObjectEvent triggerUnhighlighAction;
-        private Vector3 _screenPoint;
-        private Vector3 _offset;
+        protected Vector3 _screenPoint;
+        protected Vector3 _offset;
 
-        private bool _selectedElement;
-        private bool _changedPos;
+        protected bool _selectedElement;
+        protected bool _changedPos;
 
 
         private void OnMouseDown()
         {
-            var temp = ToolManager.Instance.SelectedTool;
-            if (temp == "DiagramMovement")
+            if (ToolManager.Instance.SelectedTool == ToolManager.Tool.DiagramMovement)
                 OnClassSelected();
         }
 
@@ -37,8 +37,8 @@ namespace AnimArch.Visualization
             if (Camera.main == null) return;
             _screenPoint = Camera.main.WorldToScreenPoint(position);
             _offset = position -
-                     Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y,
-                         _screenPoint.z));
+                      Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y,
+                          _screenPoint.z));
         }
 
         private void OnMouseUp()
@@ -52,33 +52,37 @@ namespace AnimArch.Visualization
             _selectedElement = false;
         }
 
-        private void OnMouseDrag()
+        protected virtual void OnMouseDrag()
         {
             if (_selectedElement == false ||
-                (ToolManager.Instance.SelectedTool != "DiagramMovement" && !MenuManager.Instance.isSelectingNode)
+                (ToolManager.Instance.SelectedTool != ToolManager.Tool.DiagramMovement &&
+                 !MenuManager.Instance.isSelectingNode)
                 || IsMouseOverUI())
                 return;
 
             var cursorPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z);
-            if (Camera.main == null) return;
+            if (Camera.main == null)
+                return;
             var cursorPosition = Camera.main.ScreenToWorldPoint(cursorPoint) + _offset;
             cursorPosition.z = transform.position.z;
-            if (transform.position == cursorPosition) return;
+            if (transform.position == cursorPosition)
+                return;
             _changedPos = true;
             transform.position = cursorPosition;
-
-            var classInDiagram = DiagramPool.Instance.ClassDiagram.FindClassByName(name);
-            classInDiagram.ParsedClass = ParsedEditor.UpdateNodeGeometry(classInDiagram.ParsedClass, classInDiagram.VisualObject);
+            
+            UIEditorManager.Instance.mainEditor.UpdateNodeGeometry(name);
         }
 
         private void OnMouseOver()
         {
-            if (Input.GetMouseButtonDown(0) && ToolManager.Instance.SelectedTool == "Highlighter" && !IsMouseOverUI())
+            if (Input.GetMouseButtonDown(0) && ToolManager.Instance.SelectedTool == ToolManager.Tool.Highlighter &&
+                !IsMouseOverUI())
             {
                 triggerHighlighAction.Invoke(gameObject);
             }
 
-            if (Input.GetMouseButtonDown(1) && ToolManager.Instance.SelectedTool == "Highlighter" && !IsMouseOverUI())
+            if (Input.GetMouseButtonDown(1) && ToolManager.Instance.SelectedTool == ToolManager.Tool.Highlighter &&
+                !IsMouseOverUI())
             {
                 triggerUnhighlighAction.Invoke(gameObject);
             }
@@ -94,7 +98,7 @@ namespace AnimArch.Visualization
             }
         }
 
-        private static bool IsMouseOverUI()
+        protected static bool IsMouseOverUI()
         {
             return EventSystem.current.IsPointerOverGameObject();
         }

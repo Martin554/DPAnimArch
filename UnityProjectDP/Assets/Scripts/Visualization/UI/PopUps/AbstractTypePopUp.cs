@@ -1,26 +1,70 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using AnimArch.Visualization.Diagrams;
+using OALProgramControl;
 using TMPro;
+using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.UI;
+using Visualization.ClassDiagram;
+using Visualization.Networking;
 
-namespace AnimArch.Visualization.UI
+namespace Visualization.UI.PopUps
 {
     public abstract class AbstractTypePopUp : AbstractClassPopUp
     {
-        private const string CUSTOM = "custom";
+        private const string ErrorTypeEmpty = "Type can not be empty";
+        private const string Custom = "custom";
+
         public TMP_Dropdown dropdown;
         public TMP_Text customType;
         public TMP_InputField customTypeField;
         public Toggle isArray;
         private readonly HashSet<TMP_Dropdown.OptionData> _variableData = new();
 
-        private void Awake()
+        protected Transform findAttributeClient(ulong classNetworkId)
         {
+            var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+            return objects[classNetworkId]
+                .transform
+                .Find("Background")
+                .Find("Attributes")
+                .Find("AttributeLayoutGroup")
+                .Find(inp.text);
+        }
+
+        protected Transform findMethodClient(ulong classNetworkId, string name)
+        {
+            var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+            return objects[classNetworkId]
+                .transform
+                .Find("Background")
+                .Find("Methods")
+                .Find("MethodLayoutGroup")
+                .Find(name);
+        }
+
+        private IEnumerable<string> clientClassList()
+        {
+            var classes = new List<string>();
+            var spawnedObjects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+            foreach (var spawnedObject in spawnedObjects)
+            {
+                var netClass = spawnedObject.Value.GetComponent<NetworkClass>();
+                if (netClass)
+                    classes.Add(netClass.name);
+            }
+
+            return classes;
+        }
+
+        protected new void Awake()
+        {
+            base.Awake();
+
             dropdown.onValueChanged.AddListener(delegate
             {
-                if (dropdown.options[dropdown.value].text == CUSTOM)
+                if (dropdown.options[dropdown.value].text == Custom)
                 {
                     customType.transform.gameObject.SetActive(true);
                     customTypeField.transform.gameObject.SetActive(true);
@@ -31,6 +75,18 @@ namespace AnimArch.Visualization.UI
                     customTypeField.transform.gameObject.SetActive(false);
                     customTypeField.text = "";
                 }
+            });
+            
+            customTypeField.onValueChanged.AddListener(delegate(string arg)
+            {
+                if (string.IsNullOrEmpty(arg))
+                    return;
+                if (arg.Length == 1 && (char.IsLetter(arg[0]) || arg[0] == '_'))
+                    customTypeField.text = arg;
+                else if (arg.Length > 1 && char.IsLetterOrDigit(arg[^1]) || arg[^1] == '_')
+                    customTypeField.text = arg;
+                else
+                    customTypeField.text = arg[..^1];
             });
         }
 
@@ -43,7 +99,7 @@ namespace AnimArch.Visualization.UI
             var typeIndex = dropdown.options.FindIndex(x => x.text == attributeType);
             if (typeIndex == -1)
             {
-                dropdown.value = dropdown.options.FindIndex(x => x.text == CUSTOM);
+                dropdown.value = dropdown.options.FindIndex(x => x.text == Custom);
                 customTypeField.text = attributeType;
             }
             else
@@ -54,15 +110,24 @@ namespace AnimArch.Visualization.UI
 
         protected new string GetType()
         {
-            if (dropdown.options[dropdown.value].text == CUSTOM)
-                return (isArray.isOn ? "[]" : "") + customTypeField.text.Replace(" ", "_");
+            if (dropdown.options[dropdown.value].text != Custom)
+                return (isArray.isOn ? "[]" : "") + dropdown.options[dropdown.value].text;
+            if (customTypeField.text.Length == 0)
+                DisplayError(ErrorTypeEmpty);
 
-            return (isArray.isOn ? "[]" : "") + dropdown.options[dropdown.value].text;
+            if (isArray.isOn && customTypeField.text == "void")
+                isArray.isOn = false;
+
+            return (isArray.isOn ? "[]" : "") + EXETypes.ConvertEATypeName(customTypeField.text.Replace(" ", "_"));
         }
 
         private void UpdateDropdown()
         {
-            var classNames = DiagramPool.Instance.ClassDiagram.GetClassList().Select(x => x.Name);
+            IEnumerable<string> classNames = new List<string>();
+            if (UIEditorManager.Instance.isNetworkDisabledOrIsServer())
+                classNames = DiagramPool.Instance.ClassDiagram.GetClassList().Select(x => x.Name);
+            else
+                classNames = clientClassList();
 
             dropdown.options.RemoveAll(x => _variableData.Contains(x));
             _variableData.Clear();

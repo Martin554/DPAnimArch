@@ -2,15 +2,22 @@
 using UnityEngine;
 using SimpleFileBrowser;
 using System.IO;
-using AnimArch.Parsing;
-using AnimArch.Visualization.Animating;
-using AnimArch.Visualization.UI;
-using AnimArch.Visualization.Diagrams;
+using Parsers;
+using Visualization.Animation;
+using Visualization.ClassDiagram;
+using Visualization.UI;
 
 public class FileLoader : MonoBehaviour
 {
+    private IClassDiagramBuilder _classDiagramBuilder;
+
+    private void Awake()
+    {
+        _classDiagramBuilder = ClassDiagramBuilderFactory.Create();
+    }
     private void Start()
     {
+
         var filters = new FileBrowser.Filter[2];
         filters[0] = new FileBrowser.Filter("JSON files", ".json");
         filters[1] = new FileBrowser.Filter("XML files", ".xml");
@@ -58,14 +65,14 @@ public class FileLoader : MonoBehaviour
     }
 
 
-    private static IEnumerator LoadDiagramCoroutine()
+    private IEnumerator LoadDiagramCoroutine()
     {
         FileBrowser.SetDefaultFilter(".xml");
         yield return FileBrowser.WaitForLoadDialog(false, @"Assets\Resources\", "Load Diagram", "Load");
 
         if (!FileBrowser.Success) yield break;
         AnimationData.Instance.SetDiagramPath(FileBrowser.Result);
-        ClassDiagramBuilder.LoadDiagram();
+        _classDiagramBuilder.LoadDiagram();
     }
 
     private static IEnumerator SaveAnimationCoroutine(Anim newAnim)
@@ -91,9 +98,9 @@ public class FileLoader : MonoBehaviour
         yield return FileBrowser.WaitForSaveDialog(false, @"Assets\Resources\", "Save Diagram");
         if (!FileBrowser.Success) yield break;
         
-        var data = Path.GetExtension(FileBrowser.Result) == ".json"
-            ? JsonParser.SaveDiagramToJson()
-            : XMIParser.ParseDiagramIntoXmi().OuterXml;
+        var parser = Parser.GetParser(Path.GetExtension(FileBrowser.Result));
+        
+        var data = parser.SaveDiagram();
         File.WriteAllText(FileBrowser.Result, data);
     }
 

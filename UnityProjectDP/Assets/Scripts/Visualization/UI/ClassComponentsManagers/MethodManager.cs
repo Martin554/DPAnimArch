@@ -1,8 +1,7 @@
-﻿using AnimArch.Visualization.Diagrams;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
-namespace AnimArch.Visualization.UI
+namespace Visualization.UI.ClassComponentsManagers
 {
     public class MethodManager : MonoBehaviour
     {
@@ -11,14 +10,14 @@ namespace AnimArch.Visualization.UI
 
         public void OpenMethodEditPopUp()
         {
-            UIEditorManager.Instance.methodPopUp.ActivateCreation(classTxt, methodTxt);
+            UIEditorManager.Instance.editMethodPopUp.ActivateCreation(classTxt, methodTxt);
         }
 
         public void DeleteMethod()
         {
             UIEditorManager.Instance.confirmPopUp.ActivateCreation(delegate
             {
-                MainEditor.DeleteMethod(classTxt.text, name);
+                UIEditorManager.Instance.mainEditor.DeleteMethod(classTxt.text, name);
             });
         }
     }

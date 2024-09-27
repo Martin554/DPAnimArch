@@ -1,8 +1,10 @@
 ﻿using System.Linq;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Animation = Visualization.Animation.Animation;
 using Color = UnityEngine.Color;
 
 namespace UMSAGL.Scripts
@@ -13,6 +15,7 @@ namespace UMSAGL.Scripts
 
         private TextMeshProUGUI GetLineText(string line)
         {
+            line = Regex.Replace(line, "[()]", "");
             return methodLayoutGroup.transform
                 .GetComponentsInChildren<TextMeshProUGUI>()
                 .First(x => x.text.Contains(line));
@@ -21,7 +24,7 @@ namespace UMSAGL.Scripts
         public void HighlightClassLine(string line)
         {
             GetLineText(line).color =
-                AnimArch.Visualization.Animating.Animation.Instance.methodColor;
+                Animation.Instance.methodColor;
         }
 
         public void UnhighlightClassLine(string line)

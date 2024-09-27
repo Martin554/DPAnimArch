@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using Visualization.ClassDiagram.Diagrams;
+using Visualization.ClassDiagram.Relations;
 
-namespace AnimArch.Visualization.Diagrams
+namespace Visualization.ClassDiagram
 {
     public class DiagramPool : Singleton<DiagramPool>
     {
@@ -25,9 +23,20 @@ namespace AnimArch.Visualization.Diagrams
         public GameObject realisationPrefab;
         public GameObject interGraphLinePrefab;
         public GameObject interGraphArrowPrefab;
-        public GameObject relationDeleteButtonPrefab;
 
-        public ClassDiagram ClassDiagram;
+        public GameObject networkGraphPrefab;
+        public GameObject networkClassPrefab;
+        public GameObject networkUnitsPrefab;
+
+        public GameObject networkAssociationDSPrefab;
+        public GameObject networkAssociationFullPrefab;
+        public GameObject networkAssociationNonePrefab;
+        public GameObject networkAssociationSDPrefab;
+        public GameObject networkGeneralizationPrefab;
+        public GameObject networkDependsPrefab;
+        public GameObject networkRealisationPrefab;
+
+        public Diagrams.ClassDiagram ClassDiagram;
         public ObjectDiagram ObjectDiagram;
 
         public List<InterGraphRelation> RelationsClassToObject = new();

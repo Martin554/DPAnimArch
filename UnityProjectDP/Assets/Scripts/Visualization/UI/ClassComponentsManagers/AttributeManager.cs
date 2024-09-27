@@ -1,8 +1,7 @@
-﻿using AnimArch.Visualization.Diagrams;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
-namespace AnimArch.Visualization.UI
+namespace Visualization.UI.ClassComponentsManagers
 {
     public class AttributeManager : MonoBehaviour
     {
@@ -11,14 +10,14 @@ namespace AnimArch.Visualization.UI
 
         public void OpenAttributeEditPopUp()
         {
-            UIEditorManager.Instance.attributePopUp.ActivateCreation(classTxt, attributeTxt);
+            UIEditorManager.Instance.renameAttributePopUp.ActivateCreation(classTxt, attributeTxt);
         }
 
         public void DeleteAttribute()
         {
             UIEditorManager.Instance.confirmPopUp.ActivateCreation(delegate
             {
-                MainEditor.DeleteAttribute(classTxt.text, name);
+                UIEditorManager.Instance.mainEditor.DeleteAttribute(classTxt.text, name);
             });
         }
     }

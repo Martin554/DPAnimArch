@@ -1,22 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using OALProgramControl;
-using TMPro;
-using UnityEngine.UI;
-using UnityEngine.UI.Extensions;
 using Assets.Scripts.AnimationControl.OAL;
-using AnimArch.Visualization.Diagrams;
+using OALProgramControl;
 using UMSAGL.Scripts;
-using Object = System.Object;
+using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.UI.Extensions;
+using Visualization.ClassDiagram;
+using Visualization.ClassDiagram.ClassComponents;
+using Visualization.ClassDiagram.ComponentsInDiagram;
+using Visualization.ClassDiagram.Diagrams;
+using Visualization.ClassDiagram.Relations;
 
-namespace AnimArch.Visualization.Animating
+namespace Visualization.Animation
 {
     //Controls the entire animation process
     public class Animation : Singleton<Animation>
     {
-        private ClassDiagram classDiagram;
+        private ClassDiagram.Diagrams.ClassDiagram classDiagram;
         private ObjectDiagram objectDiagram;
         public Color classColor;
         public Color methodColor;
@@ -36,7 +37,7 @@ namespace AnimArch.Visualization.Animating
 
         private void Awake()
         {
-            classDiagram = GameObject.Find("ClassDiagram").GetComponent<ClassDiagram>();
+            classDiagram = GameObject.Find("ClassDiagram").GetComponent<ClassDiagram.Diagrams.ClassDiagram>();
             objectDiagram = GameObject.Find("ObjectDiagram").GetComponent<ObjectDiagram>();
             standardPlayMode = true;
         }
@@ -394,46 +395,45 @@ namespace AnimArch.Visualization.Animating
             return lf.StartCoroutine(lf.AnimateFlow(edge.GetComponent<UILineRenderer>().Points, flip));
         }
 
+        private GameObject classGameObject(string className)
+        {
+            if (!UI.UIEditorManager.Instance.isNetworkDisabledOrIsServer())
+            {
+                var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects;
+                var values = objects.Values;
+                foreach (var value in values)
+                {
+                    if (value.name == className)
+                        return value.gameObject;
+                }
+            }
+            return classDiagram.FindNode(className);
+        }
+
+        private void HighlightBackground(BackgroundHighlighter backgroundHighlighter, bool isToBeHighlighted)
+        {
+            if (isToBeHighlighted)
+                backgroundHighlighter.HighlightBackground();
+            else
+                backgroundHighlighter.UnhighlightBackground();
+        }
+
         //Method used to Highlight/Unhighlight single class by name, depending on bool value of argument 
         public void HighlightClass(string className, bool isToBeHighlighted, long instanceID = -1)
         {
-            GameObject node = classDiagram.FindNode(className);
+            GameObject node = classGameObject(className);
 
-            BackgroundHighlighter bh = null;
+            BackgroundHighlighter backgroundHighlighter = null;
             if (node != null)
             {
-                bh = node.GetComponent<BackgroundHighlighter>();
+                backgroundHighlighter = node.GetComponent<BackgroundHighlighter>();
             }
             else
             {
                 Debug.Log("Node " + className + " not found");
+                return;
             }
-
-            if (bh != null)
-            {
-                if (isToBeHighlighted)
-                {
-                    bh.HighlightBackground();
-                    //Debug.Log("Filip, classa: " + className); //Filip
-                }
-                else
-                {
-                    bh.UnhighlightBackground();
-                }
-            }
-            else
-            {
-                Debug.Log("Highlighter component not found");
-            }
-
-            // if (instanceID == -1)
-            // {
-            //     HighlightObjects(className, isToBeHighlighted);
-            // }
-            // else
-            // {
-            //     HighlightObject(instanceID, isToBeHighlighted);
-            // }
+            HighlightBackground(backgroundHighlighter, isToBeHighlighted);
         }
 
         public void HighlightObjects(string className, bool isToBeHighlighted)
@@ -463,60 +463,39 @@ namespace AnimArch.Visualization.Animating
         public void HighlightObject(long objectUniqueId, bool isToBeHighlighted)
         {
             GameObject node = objectDiagram.FindByID(objectUniqueId).VisualObject;
-            BackgroundHighlighter bh = null;
+            BackgroundHighlighter backgroundHighlighter = null;
             if (node != null)
             {
-                bh = node.GetComponent<BackgroundHighlighter>();
+                backgroundHighlighter = node.GetComponent<BackgroundHighlighter>();
             }
             else
             {
                 Debug.Log("Node " + objectUniqueId + " not found");
+                return;
             }
 
-            if (bh != null)
-            {
-                if (isToBeHighlighted)
-                {
-                    bh.HighlightBackground();
-                }
-                else
-                {
-                    bh.UnhighlightBackground();
-                }
-            }
-            else
-            {
-                Debug.Log("Highlighter component not found");
-            }
+            HighlightBackground(backgroundHighlighter, isToBeHighlighted);
         }
 
         //Method used to Highlight/Unhighlight single method by name, depending on bool value of argument 
-    public void HighlightMethod(string className, string methodName, bool isToBeHighlighted, long instanceId = -1)
+        public void HighlightMethod(string className, string methodName, bool isToBeHighlighted, long instanceId = -1)
         {
-            var node = classDiagram.FindNode(className);
+            GameObject node = classDiagram.FindNode(className);
             if (node)
             {
                 ClassTextHighligter classTextHighligter = node.GetComponent<ClassTextHighligter>();
                 if (classTextHighligter)
                 {
                     if (isToBeHighlighted)
-                    {
                         classTextHighligter.HighlightClassLine(methodName);
-                    }
                     else
-                    {
                         classTextHighligter.UnhighlightClassLine(methodName);
-                    }
                 }
                 else
-                {
                     Debug.Log("TextHighlighter component not found");
-                }
             }
             else
-            {
                 Debug.Log("Node " + className + " not found");
-            }
         }
 
         private void HighlightInstancesMethod(string className, string methodName, bool isToBeHighlighted)
@@ -535,13 +514,9 @@ namespace AnimArch.Visualization.Animating
             if (textHighlighter != null)
             {
                 if (isToBeHighlighted)
-                {
                     textHighlighter.HighlightObjectLine(methodName);
-                }
                 else
-                {
                     textHighlighter.UnHighlightObjectLine(methodName);
-                }
             }
         }
 
@@ -608,18 +583,25 @@ namespace AnimArch.Visualization.Animating
                 return;
             }
 
-            var objectRelation =
-                DiagramPool.Instance.ObjectDiagram.FindRelation(callerInstanceId, calledInstanceId).GameObject;
+            if (DiagramPool.Instance.ObjectDiagram == null)
+                return;
+
+            var objectRelation = DiagramPool.Instance.ObjectDiagram.FindRelation(callerInstanceId, calledInstanceId);
+            
+            if (objectRelation == null)
+                return;
+            
+            var objectRelationGo = objectRelation.GameObject;
 
             if (isToBeHighlighted)
             {
-                objectRelation.GetComponent<UEdge>().ChangeColor(relationColor);
-                objectRelation.GetComponent<UILineRenderer>().LineThickness = 8;
+                objectRelationGo.GetComponent<UEdge>().ChangeColor(relationColor);
+                objectRelationGo.GetComponent<UILineRenderer>().LineThickness = 8;
             }
             else
             {
-                objectRelation.GetComponent<UEdge>().ChangeColor(Color.white);
-                objectRelation.GetComponent<UILineRenderer>().LineThickness = 5;
+                objectRelationGo.GetComponent<UEdge>().ChangeColor(Color.white);
+                objectRelationGo.GetComponent<UILineRenderer>().LineThickness = 5;
             }
         }
 
@@ -649,7 +631,7 @@ namespace AnimArch.Visualization.Animating
                             HighlightInstancesMethod(Call.CallerClassName, Call.CallerMethodName, true);
                             break;
                         case 2:
-                            yield return StartCoroutine(AnimateFill(Call));
+                            // yield return StartCoroutine(AnimateFill(Call));
                             timeModifier = 0f;
                             break;
                         case 3:

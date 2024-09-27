@@ -1,13 +1,17 @@
-﻿using Unity.Netcode;
+﻿using System;
+using Unity.Netcode;
+using Unity.Netcode.Transports;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-
-namespace Networking
+namespace Visualization.Networking
 {
     public class PlayerManager : NetworkSingleton<PlayerManager>
     {
         static string playerName = "Enter name";
+        string ip = "127.0.0.1";
+        ushort port = 55555;
 
         private void Start()
         {
@@ -23,6 +27,9 @@ namespace Networking
             if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
             {
                 playerName = GUILayout.TextField(playerName, 25);
+                ip = GUILayout.TextField(ip, 25);
+                var portString = GUILayout.TextField(port.ToString(), 7);
+                port = (ushort)UInt16.Parse(portString);
                 StartButtons();
             }
             else
@@ -33,30 +40,33 @@ namespace Networking
             GUILayout.EndArea();
         }
 
-        static void StartButtons()
+        void StartButtons()
         {
             if (GUILayout.Button("Host"))
             {
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(ip, port, "0.0.0.0");
                 NetworkManager.Singleton.StartHost();
                 SceneManager.LoadScene("AnimArch");
             }
-            if (GUILayout.Button("Client"))
+            else if (GUILayout.Button("Client"))
             {
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(ip, port);
                 NetworkManager.Singleton.StartClient();
             }
-
-            if (GUILayout.Button("Server"))
+            else if (GUILayout.Button("Server"))
             {
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(ip, port, "0.0.0.0");
                 NetworkManager.Singleton.StartServer();
+                SceneManager.LoadScene("AnimArch");
             }
         }
 
-        static void StatusLabels()
+        void StatusLabels()
         {
             var mode = NetworkManager.Singleton.IsHost ?
                 "Host" : NetworkManager.Singleton.IsServer ? "Server" : "Client";
-            GUILayout.Label("Transport: " +
-                NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetType().Name);
+            GUILayout.Label("Server IP: " + ip);
+            GUILayout.Label("Server port: " + port);
             GUILayout.Label("Mode: " + mode);
         }
     }
